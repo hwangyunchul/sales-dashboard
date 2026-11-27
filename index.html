@@ -1,0 +1,3432 @@
+<!DOCTYPE html>
+<html lang="ko" data-palette="graphite" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>황윤철 팀장 영업 관리 대시보드</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E%ED%99%A9%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy.css">
+<style>
+
+:root {
+  color-scheme: light;
+  --ink-25: #f5f7fa; --ink-0: #ffffff; --ink-50: #f1f4f8; --ink-100: #e7ebf1;
+  --ink-200: #dbe1e9; --ink-300: #c2c9d4; --ink-400: #96a0af; --ink-500: #6a7484;
+  --ink-600: #4d5665; --ink-700: #39414e; --ink-800: #252b35; --ink-900: #11151c;
+  --brand-50: #eef4ff; --brand-100: #dde9ff; --brand-400: #6b9bf0; --brand-500: #3b74e8;
+  --brand-600: #2a5ecf; --brand-700: #1f4aa6; --brand-900: #12306e;
+  --success-500: #15a34a; --warn-500: #d97706; --danger-500: #dc2626; --info-500: #2b7cd3;
+  --viz-1: #3b74e8; --viz-2: #15a34a; --viz-3: #d97706; --viz-4: #7c5cd6; --viz-5: #0ea5a5; --viz-6: #e0559b;
+  --r-xs: 4px; --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(16,24,40,.04), 0 6px 18px rgba(16,24,40,.05);
+  --shadow-flat: 0 1px 2px rgba(16,24,40,.06);
+}
+body { background: var(--ink-25); }
+/* =========================================================
+   황윤철 팀장 영업 대시보드 — design tokens only
+   ========================================================= */
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--ink-25);
+  color: var(--ink-800);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+html body,
+html body * {
+  font-family: 'Paperlogy', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+}
+
+body.modal-open { overflow: hidden; }
+
+h1, h2, h3, h4, p { margin: 0; }
+ul, ol, dl, dd { margin: 0; padding: 0; list-style: none; }
+button { font-size: inherit; }
+a { color: inherit; }
+
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--ink-500); font-size: 12px; font-weight: 500; }
+
+/* ---------- layout ---------- */
+.shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+/* ---------- top bar ---------- */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 16px 20px;
+  background: var(--ink-0);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.brand { display: flex; align-items: center; gap: 13px; min-width: 0; }
+
+.brand-mark {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  background: var(--ink-900);
+  color: var(--ink-0);
+}
+
+.brand-txt h1 {
+  font-size: 18.5px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--ink-900);
+  line-height: 1.25;
+}
+
+.brand-txt p {
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-500);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.mentor {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font-weight: 700;
+  font-size: 11.5px;
+  border: 1px solid color-mix(in srgb, var(--brand-500) 22%, transparent);
+}
+
+.dot-sep {
+  width: 3px; height: 3px; border-radius: 50%;
+  background: var(--ink-200);
+  display: inline-block;
+}
+
+.top-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.goal-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 14px;
+  border-radius: var(--r-md);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+}
+.goal-chip .gc-label { font-size: 10.5px; font-weight: 700; color: var(--ink-500); letter-spacing: 0.02em; }
+.goal-chip strong { font-size: 15px; font-weight: 800; color: var(--ink-900); letter-spacing: -0.3px; }
+
+.dday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  padding: 8px 16px;
+  border-radius: var(--r-md);
+  background: var(--ink-900);
+  color: var(--ink-0);
+}
+.dday b { font-size: 24px; font-weight: 900; letter-spacing: -1px; line-height: 1.1; }
+.dday span { font-size: 10.5px; opacity: 0.65; margin-top: 2px; letter-spacing: 0.04em; }
+
+/* ---------- tabs ---------- */
+.tabbar {
+  display: flex;
+  gap: 4px;
+  margin: 14px 0 18px;
+  padding: 5px;
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--ink-0);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-flat);
+}
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-500);
+  font-size: 13.5px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.tab-btn:hover { background: var(--ink-50); color: var(--ink-900); }
+.tab-btn.active { background: var(--ink-900); color: var(--ink-0); }
+.tab-btn .tab-count {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--ink-500) 16%, transparent);
+  color: inherit;
+}
+.tab-btn.active .tab-count { background: color-mix(in srgb, var(--ink-0) 22%, transparent); }
+
+/* ---------- generic card ---------- */
+.card {
+  background: var(--ink-0);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+.card + .card, .card + section, section + .card, section + section { margin-top: 14px; }
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--ink-100);
+}
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--ink-900);
+}
+.card-sub { margin-top: 4px; font-size: 12px; color: var(--ink-500); line-height: 1.45; }
+.card-body { padding: 16px 18px; }
+
+.count-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: var(--r-pill);
+  background: var(--ink-100);
+  color: var(--ink-600);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--ink-200);
+  background: var(--ink-0);
+  color: var(--ink-800);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, opacity 0.15s, border-color 0.15s;
+}
+.btn:hover { background: var(--ink-50); }
+.btn-primary { background: var(--ink-900); color: var(--ink-0); border-color: var(--ink-900); }
+.btn-primary:hover { background: var(--ink-900); opacity: 0.86; }
+.btn-danger { color: var(--danger-500); border-color: color-mix(in srgb, var(--danger-500) 35%, transparent); background: transparent; }
+.btn-danger:hover { background: color-mix(in srgb, var(--danger-500) 10%, transparent); }
+.btn-ghost { border-color: transparent; background: transparent; color: var(--ink-500); }
+.btn-ghost:hover { background: var(--ink-50); color: var(--ink-900); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn[disabled] { opacity: 0.5; pointer-events: none; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-500);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover { background: var(--ink-50); color: var(--ink-900); }
+.icon-btn.tiny { width: 22px; height: 22px; font-size: 11px; }
+
+/* ---------- inputs ---------- */
+.input, .select, .textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-sm);
+  background: var(--ink-0);
+  color: var(--ink-900);
+  font-size: 13.5px;
+  line-height: 1.3;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input::placeholder, .textarea::placeholder { color: var(--ink-400); }
+.input:focus, .select:focus, .textarea:focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-500) 16%, transparent);
+}
+.select { cursor: pointer; }
+.textarea { resize: vertical; min-height: 74px; line-height: 1.6; }
+
+.inline-form { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; }
+.inline-form .input { flex: 1 1 140px; }
+.inline-form .select { flex: 0 0 auto; width: auto; min-width: 96px; }
+.inline-form input[type="date"] { flex: 0 0 auto; width: 142px; }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  flex-wrap: wrap;
+  padding: 24px 26px;
+  border-radius: calc(var(--r-lg) + 2px);
+  border: 1px solid color-mix(in srgb, var(--brand-500) 26%, var(--ink-200));
+  background:
+    radial-gradient(120% 180% at 100% 0%, color-mix(in srgb, var(--brand-500) 15%, transparent), transparent 62%),
+    var(--ink-0);
+  box-shadow: var(--shadow-card);
+}
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--brand-500);
+}
+.hero-eyebrow {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  color: var(--brand-600);
+}
+.hero-title {
+  margin-top: 7px;
+  font-size: 27px;
+  font-weight: 900;
+  letter-spacing: -0.9px;
+  color: var(--ink-900);
+  line-height: 1.18;
+}
+.hero-title em {
+  font-style: normal;
+  color: var(--brand-600);
+}
+.hero-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ink-500);
+  font-weight: 500;
+}
+.hero-pills { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+.hero-pill {
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+  color: var(--ink-700);
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.hero-pill strong { color: var(--ink-900); }
+
+/* ---------- perf / gauges ---------- */
+.perf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 16px 18px 4px;
+}
+.formula {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: var(--r-pill);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-600);
+}
+.formula b { color: var(--brand-600); font-weight: 900; }
+.formula .f-eq { color: var(--ink-300); font-weight: 700; }
+
+.gauges {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  padding: 8px 6px 6px;
+}
+.gauge { padding: 10px 12px; border-left: 1px solid var(--ink-100); }
+.gauge:first-child { border-left: 0; }
+.gauge-top { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.gauge-label { font-size: 12px; font-weight: 700; color: var(--ink-500); }
+.gauge-val { font-size: 19px; font-weight: 900; letter-spacing: -0.6px; color: var(--ink-900); white-space: nowrap; }
+.gauge-val .unit { font-size: 11.5px; font-weight: 600; color: var(--ink-400); margin-left: 3px; letter-spacing: 0; }
+.gauge-sub { margin-top: 6px; font-size: 11px; color: var(--ink-500); }
+
+.bar { height: 7px; border-radius: 99px; background: var(--ink-100); overflow: hidden; margin-top: 9px; }
+.bar.sm { height: 6px; margin-top: 0; }
+.bar > i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--brand-500);
+  transition: width 0.45s ease;
+}
+.bar > i.ok { background: var(--success-500); }
+.bar > i.warn { background: var(--warn-500); }
+.bar > i.ink { background: var(--ink-400); }
+
+/* ---------- calendar ---------- */
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: var(--r-pill);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+}
+.seg-btn {
+  border: 0;
+  background: transparent;
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.seg-btn.active { background: var(--ink-0); color: var(--ink-900); box-shadow: var(--shadow-flat); }
+
+.cal-legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 10px 18px 0;
+  font-size: 11px;
+  color: var(--ink-500);
+  font-weight: 600;
+}
+.cal-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+
+.cal-wrap { padding: 10px 14px 16px; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.month {
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-md);
+  padding: 10px 9px 8px;
+  background: var(--ink-0);
+}
+.month-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-900);
+  letter-spacing: -0.2px;
+}
+.month-count {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-500);
+  background: var(--ink-50);
+  border-radius: var(--r-pill);
+  padding: 1px 6px;
+}
+.month-count.zero { visibility: hidden; }
+.dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 3px; }
+.dow span {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-400);
+  padding: 2px 0;
+}
+.dow span.sun { color: var(--danger-500); }
+.dow span.sat { color: var(--brand-500); }
+
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 37px;
+  padding: 3px 1px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ink-700);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.day:hover { background: var(--ink-50); border-color: var(--ink-200); }
+.day .dnum { line-height: 1; }
+.day.sun .dnum { color: var(--danger-500); }
+.day.sat .dnum { color: var(--brand-500); }
+.day.out { visibility: hidden; pointer-events: none; }
+.day.today { background: var(--ink-900); }
+.day.today .dnum { color: var(--ink-0); font-weight: 800; }
+.day.today:hover { background: var(--ink-900); }
+.dots { display: flex; gap: 2.5px; height: 4px; align-items: center; }
+.dots i { width: 4px; height: 4px; border-radius: 50%; display: block; }
+.d-meet { background: var(--brand-500); }
+.d-call { background: var(--success-500); }
+.d-todo { background: var(--warn-500); }
+.d-log { background: var(--ink-300); }
+.day.today .d-log { background: var(--ink-400); }
+
+/* ---------- split panels ---------- */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  margin-top: 14px;
+}
+.split > .card { margin-top: 0; }
+.split + .card { margin-top: 14px; }
+
+/* ---------- todo list ---------- */
+.todo-list { display: flex; flex-direction: column; }
+.todo {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 2px;
+  border-bottom: 1px solid var(--ink-100);
+}
+.todo:last-child { border-bottom: 0; }
+.todo input[type="checkbox"] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  accent-color: var(--brand-500);
+  cursor: pointer;
+}
+.todo .kdot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 7px;
+}
+.todo .kdot.미팅 { background: var(--brand-500); }
+.todo .kdot.전화 { background: var(--success-500); }
+.todo .kdot.이슈체크 { background: var(--warn-500); }
+.todo .kdot.기타 { background: var(--ink-300); }
+.todo .txt { flex: 1; font-size: 13.5px; line-height: 1.5; color: var(--ink-800); word-break: break-word; }
+.todo.done .txt { color: var(--ink-400); text-decoration: line-through; }
+.todo .ktag {
+  flex: none;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-500);
+  background: var(--ink-50);
+  border-radius: var(--r-pill);
+  padding: 2px 7px;
+  margin-top: 1px;
+}
+.todo .icon-btn { margin: -4px -2px 0 0; opacity: 0.5; transition: opacity 0.15s; }
+.todo:hover .icon-btn { opacity: 1; }
+
+/* ---------- monthly issues ---------- */
+.mpills {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  margin-bottom: 10px;
+}
+.mpill {
+  border: 1px solid var(--ink-200);
+  background: var(--ink-0);
+  color: var(--ink-500);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.mpill.active { background: var(--ink-900); color: var(--ink-0); border-color: var(--ink-900); }
+.missue { display: flex; align-items: center; gap: 9px; padding: 9px 2px; border-bottom: 1px solid var(--ink-100); }
+.missue:last-child { border-bottom: 0; }
+.missue .mtxt { flex: 1; font-size: 13.5px; color: var(--ink-800); }
+.missue.done .mtxt { color: var(--ink-400); text-decoration: line-through; }
+.missue .icon-btn { opacity: 0.5; }
+.missue:hover .icon-btn { opacity: 1; }
+.missue .mi-check {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--ink-200);
+  background: transparent;
+  display: grid; place-items: center;
+  font-size: 10px; color: transparent; cursor: pointer; flex: none;
+}
+.missue.done .mi-check { background: var(--brand-500); border-color: var(--brand-500); color: var(--ink-0); }
+
+.add-row { display: flex; gap: 7px; margin-top: 10px; }
+.add-row .input { flex: 1; }
+.add-plus {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  border: 1px dashed color-mix(in srgb, var(--brand-500) 45%, var(--ink-200));
+  background: var(--brand-50);
+  color: var(--brand-700);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.add-plus:hover { background: color-mix(in srgb, var(--brand-500) 16%, transparent); }
+
+/* ---------- tables ---------- */
+.table-wrap { width: 100%; overflow-x: auto; }
+.scroll-hint { display: none; font-size: 12px; color: var(--ink-500); margin: 0 0 6px 2px; }
+
+/* ---------- resource upload / viewer ---------- */
+.up-row { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
+.up-row .input { flex: 0 0 220px; }
+.up-drop {
+  flex: 1 1 320px; min-height: 64px; display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border: 1.5px dashed var(--ink-300); border-radius: var(--r-md);
+  background: var(--ink-25); cursor: pointer; transition: border-color .15s, background .15s;
+}
+.up-drop:hover, .up-drop.dragging { border-color: var(--brand-500); background: var(--brand-50); }
+.up-drop input[type=file] { display: none; }
+.up-plus {
+  width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--ink-900); color: var(--ink-0); font-size: 18px; font-weight: 700; flex: 0 0 auto;
+}
+.up-txt { display: flex; flex-direction: column; gap: 2px; font-size: 13px; color: var(--ink-600); }
+.up-txt b { color: var(--ink-900); font-weight: 700; }
+.up-sub { font-size: 12px; color: var(--ink-400); }
+.up-status { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+.up-item { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; font-size: 12px; color: var(--ink-600); }
+.up-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.up-pct { color: var(--ink-400); }
+.up-bar { grid-column: 1 / -1; height: 4px; border-radius: var(--r-pill); background: var(--ink-100); overflow: hidden; }
+.up-bar i { display: block; height: 100%; width: 0; background: var(--brand-500); transition: width .2s; }
+.up-item.done .up-pct { color: var(--success-500); }
+.up-item.done .up-bar i { background: var(--success-500); }
+.up-item.fail .up-pct { color: var(--danger-500); }
+.up-item.fail .up-bar i { background: var(--danger-500); }
+.file-list { margin-top: 14px; display: flex; flex-direction: column; border-top: 1px solid var(--ink-100); }
+.file-row { display: flex; align-items: center; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--ink-100); }
+.f-ico {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; font-size: 10px; font-weight: 800;
+  letter-spacing: .3px; background: var(--ink-50); color: var(--ink-500);
+}
+.fx-pdf { color: var(--danger-500); }
+.fx-img { color: var(--viz-4); }
+.fx-doc { color: var(--brand-600); }
+.fx-sheet { color: var(--success-500); }
+.fx-ppt { color: var(--warn-500); }
+.fx-text { color: var(--ink-500); }
+.f-main { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.f-title {
+  background: none; border: 0; padding: 0; text-align: left; font: inherit;
+  font-weight: 700; color: var(--ink-900); cursor: pointer; line-height: 1.35;
+}
+.f-title:hover { color: var(--brand-600); text-decoration: underline; }
+.f-meta { font-size: 12px; color: var(--ink-500); }
+.f-note { font-size: 12px; color: var(--ink-400); }
+.f-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; flex: 0 0 auto; }
+.f-actions .btn-sm { padding: 5px 10px; font-size: 12px; }
+.file-empty { padding: 22px 4px; text-align: center; color: var(--ink-400); font-size: 13px; }
+.rv-wrap { border: 1px solid var(--ink-100); border-radius: var(--r-md); overflow: hidden; background: var(--ink-50); }
+.rv-img { display: block; width: 100%; height: auto; max-height: 70vh; object-fit: contain; background: var(--ink-0); }
+.rv-frame { display: block; width: 100%; height: 70vh; border: 0; background: var(--ink-0); }
+.rv-text {
+  margin: 0; padding: 16px; max-height: 70vh; overflow: auto; background: var(--ink-25);
+  border: 1px solid var(--ink-100); border-radius: var(--r-md);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px; line-height: 1.65; white-space: pre-wrap;
+}
+.rv-noview { padding: 34px 18px; text-align: center; color: var(--ink-500); font-size: 13px; line-height: 1.7; }
+.rv-noview .f-ico { margin: 0 auto 14px; width: 54px; height: 54px; font-size: 11px; }
+.rv-note {
+  margin: 0 0 12px; font-size: 13px; color: var(--ink-600); background: var(--ink-25);
+  border-left: 3px solid var(--brand-400); padding: 8px 12px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th {
+  text-align: left;
+  padding: 9px 12px;
+  background: var(--ink-25);
+  border-bottom: 1px solid var(--ink-200);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--ink-500);
+  white-space: nowrap;
+}
+.tbl th.r, .tbl td.r { text-align: right; }
+.tbl td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--ink-100);
+  vertical-align: middle;
+  color: var(--ink-800);
+}
+.tbl tbody tr:last-child td { border-bottom: 0; }
+.tbl tbody tr.rowlink { cursor: pointer; }
+.tbl tbody tr.rowlink:hover { background: var(--ink-25); }
+.tbl-co { min-width: 900px; }
+.tbl-prog { min-width: 640px; }
+
+.co-name { font-size: 13.5px; font-weight: 700; color: var(--ink-900); letter-spacing: -0.2px; }
+.co-sub { font-size: 11.5px; color: var(--ink-500); margin-top: 2px; }
+.tbl .money { font-weight: 700; color: var(--ink-900); white-space: nowrap; }
+.tbl .money.zero { color: var(--ink-400); font-weight: 500; }
+
+.prog-cell { display: flex; align-items: center; gap: 8px; min-width: 108px; }
+.prog-cell .bar { flex: 1; margin-top: 0; }
+.prog-cell b { font-size: 11.5px; color: var(--ink-700); width: 30px; text-align: right; }
+
+/* ---------- chips & badges ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px 2px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-700);
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.chip::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink-400);
+}
+.chip.more { padding-left: 7px; color: var(--ink-500); }
+.chip.more::before { display: none; }
+
+.chip.cert { background: color-mix(in srgb, var(--brand-500) 11%, var(--ink-0)); border-color: color-mix(in srgb, var(--brand-500) 24%, transparent); }
+.chip.cert::before { background: var(--brand-500); }
+.chip.fund { background: color-mix(in srgb, var(--success-500) 11%, var(--ink-0)); border-color: color-mix(in srgb, var(--success-500) 24%, transparent); }
+.chip.fund::before { background: var(--success-500); }
+.chip.tax { background: color-mix(in srgb, var(--warn-500) 13%, var(--ink-0)); border-color: color-mix(in srgb, var(--warn-500) 26%, transparent); }
+.chip.tax::before { background: var(--warn-500); }
+.chip.inherit { background: color-mix(in srgb, var(--viz-4) 11%, var(--ink-0)); border-color: color-mix(in srgb, var(--viz-4) 24%, transparent); }
+.chip.inherit::before { background: var(--viz-4); }
+.chip.consult { background: color-mix(in srgb, var(--viz-6) 11%, var(--ink-0)); border-color: color-mix(in srgb, var(--viz-6) 24%, transparent); }
+.chip.consult::before { background: var(--viz-6); }
+.chip.etc::before { background: var(--ink-400); }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.st-new { background: color-mix(in srgb, var(--ink-400) 13%, transparent); color: var(--ink-600); }
+.st-active { background: color-mix(in srgb, var(--brand-500) 13%, transparent); color: var(--brand-700); }
+.st-done { background: color-mix(in srgb, var(--success-500) 15%, transparent); color: color-mix(in srgb, var(--success-500) 82%, var(--ink-900)); }
+.st-hold { background: color-mix(in srgb, var(--warn-500) 15%, transparent); color: color-mix(in srgb, var(--warn-500) 78%, var(--ink-900)); }
+
+/* ---------- toolbar (company list) ---------- */
+.toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--ink-100);
+  background: var(--ink-25);
+}
+.search { position: relative; flex: 1 1 220px; min-width: 0; }
+.search .input { padding-left: 32px; }
+.search::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  margin-top: -7px;
+  border: 2px solid var(--ink-400);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.search::after {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 50%;
+  width: 6px;
+  height: 2px;
+  margin-top: 3px;
+  background: var(--ink-400);
+  transform: rotate(45deg);
+  border-radius: 2px;
+  pointer-events: none;
+}
+.toolbar .select { width: auto; min-width: 104px; flex: 0 0 auto; }
+
+/* ---------- empty state ---------- */
+.empty {
+  padding: 34px 20px;
+  text-align: center;
+  color: var(--ink-500);
+}
+.empty .em-title { font-size: 14px; font-weight: 800; color: var(--ink-800); margin-bottom: 5px; }
+.empty .em-sub { font-size: 12.5px; line-height: 1.6; margin-bottom: 14px; }
+.empty .em-icon {
+  width: 42px; height: 42px; margin: 0 auto 10px;
+  border-radius: 12px;
+  background: var(--ink-50);
+  border: 1px solid var(--ink-200);
+  display: grid; place-items: center;
+  font-size: 18px;
+  color: var(--ink-400);
+}
+
+/* ---------- modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(12, 14, 18, 0.48);
+  backdrop-filter: blur(2px);
+  animation: fade 0.16s ease-out;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) scale(0.99); } to { opacity: 1; transform: none; } }
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 580px;
+  max-height: 92vh;
+  background: var(--ink-0);
+  border: 1px solid var(--ink-200);
+  border-radius: calc(var(--r-lg) + 2px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: rise 0.2s ease-out;
+}
+.modal.modal-wide { max-width: 860px; }
+.modal.modal-file { max-width: 1040px; }
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--ink-100);
+}
+.modal-title { font-size: 16px; font-weight: 800; letter-spacing: -0.3px; color: var(--ink-900); }
+.modal-sub { margin-top: 3px; font-size: 11.5px; color: var(--ink-500); }
+.modal-body { padding: 16px 18px; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.modal-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--ink-100);
+  background: var(--ink-25);
+}
+.modal-foot .spacer { flex: 1; }
+
+/* ---------- forms ---------- */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field > label { font-size: 11.5px; font-weight: 700; color: var(--ink-600); letter-spacing: 0.01em; }
+.field .hint { font-weight: 500; color: var(--ink-400); font-size: 11px; margin-left: 4px; }
+.req { color: var(--danger-500); }
+
+.issue-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.issue-group {
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-sm);
+  padding: 9px 10px;
+  background: var(--ink-25);
+}
+.ig-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.ig-amt { font-size: 10.5px; font-weight: 700; color: var(--ink-500); }
+.ig-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.pick {
+  border: 1px solid var(--ink-200);
+  background: var(--ink-0);
+  color: var(--ink-600);
+  border-radius: var(--r-pill);
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.pick:hover { border-color: var(--brand-500); color: var(--ink-900); }
+.pick.on {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+  color: var(--ink-0);
+}
+.pick.on::before { content: "✓ "; font-size: 10px; opacity: 0.9; }
+
+.amount-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  background: var(--brand-50);
+  border: 1px solid color-mix(in srgb, var(--brand-500) 25%, transparent);
+}
+.ab-label { display: block; font-size: 11px; font-weight: 800; color: var(--brand-700); letter-spacing: 0.02em; }
+.ab-count { display: block; font-size: 10.5px; color: var(--ink-500); margin-top: 2px; }
+.amount-box strong { font-size: 21px; font-weight: 900; letter-spacing: -0.7px; color: var(--brand-700); }
+
+/* ---------- company detail ---------- */
+.detail-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.dt-box {
+  padding: 13px 15px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--ink-200);
+  background: var(--ink-25);
+}
+.dt-box.amount { background: var(--brand-50); border-color: color-mix(in srgb, var(--brand-500) 25%, transparent); }
+.dt-box .dt-label { font-size: 10.5px; font-weight: 800; color: var(--ink-500); letter-spacing: 0.03em; }
+.dt-box .dt-value { margin-top: 4px; font-size: 22px; font-weight: 900; letter-spacing: -0.8px; color: var(--ink-900); }
+.dt-box.amount .dt-value { color: var(--brand-700); }
+.dt-box .dt-sub { margin-top: 5px; font-size: 11px; color: var(--ink-500); }
+.dt-prog-head { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--ink-500); }
+.dt-prog-head strong { color: var(--ink-900); font-size: 13px; }
+
+.dl { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--ink-100); }
+.dl > div { display: flex; gap: 10px; padding: 9px 2px; border-bottom: 1px solid var(--ink-100); min-width: 0; }
+.dl dt { flex: none; width: 64px; font-size: 11.5px; color: var(--ink-500); font-weight: 600; }
+.dl dd { flex: 1; font-size: 12.5px; color: var(--ink-800); word-break: break-all; }
+
+.mini-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 18px 0 9px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--ink-900);
+}
+.mini-title:first-child { margin-top: 0; }
+
+.mini-list { display: flex; flex-direction: column; margin-top: 8px; }
+.mini-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 2px;
+  border-bottom: 1px solid var(--ink-100);
+  font-size: 12.5px;
+}
+.mini-item:last-child { border-bottom: 0; }
+.mini-item .mi-type {
+  flex: none;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-top: 1px;
+}
+.mi-type.meeting { background: color-mix(in srgb, var(--brand-500) 14%, transparent); color: var(--brand-700); }
+.mi-type.call { background: color-mix(in srgb, var(--success-500) 16%, transparent); color: color-mix(in srgb, var(--success-500) 80%, var(--ink-900)); }
+.mini-item .mi-txt { flex: 1; color: var(--ink-800); line-height: 1.5; word-break: break-word; }
+.mini-item .mi-date { flex: none; font-size: 11px; color: var(--ink-400); }
+.mini-item .icon-btn { margin-top: -4px; opacity: 0.45; }
+.mini-item:hover .icon-btn { opacity: 1; }
+
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 280px;
+  overflow-y: auto;
+  margin-top: 6px;
+  padding: 4px 0 4px 2px;
+}
+.tl-item { position: relative; display: flex; gap: 11px; padding: 7px 0; }
+.tl-item::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 22px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--ink-200);
+}
+.tl-item:last-child::before { display: none; }
+.tl-dot {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--ink-0);
+  border: 2px solid var(--brand-500);
+  z-index: 1;
+}
+.tl-body { flex: 1; min-width: 0; }
+.tl-meta { font-size: 10.5px; font-weight: 700; color: var(--ink-400); letter-spacing: 0.02em; }
+.tl-text { margin-top: 2px; font-size: 12.5px; color: var(--ink-800); line-height: 1.55; word-break: break-word; }
+.tl-item .icon-btn { margin-top: -2px; opacity: 0.45; }
+.tl-item:hover .icon-btn { opacity: 1; }
+
+/* ---------- day modal ---------- */
+.day-sec { padding-bottom: 6px; }
+.day-sec + .day-sec { border-top: 1px solid var(--ink-100); padding-top: 4px; }
+.day-empty { padding: 12px 2px; font-size: 12px; color: var(--ink-400); }
+
+/* ---------- resources ---------- */
+.issue-tbl td { vertical-align: top; }
+.issue-tbl .cat-cell { width: 96px; }
+.issue-tbl .items { display: flex; flex-wrap: wrap; gap: 4px; }
+.issue-tbl .amt { text-align: right; white-space: nowrap; font-weight: 800; color: var(--ink-900); }
+.issue-tbl tr.cat-row td { border-bottom: 1px solid var(--ink-100); }
+
+.formula-card {
+  max-width: 820px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+}
+.fc-box {
+  text-align: center;
+  padding: 14px 10px;
+  border-radius: var(--r-md);
+  background: var(--ink-25);
+  border: 1px solid var(--ink-200);
+}
+.fc-box .fc-num { font-size: 26px; font-weight: 900; letter-spacing: -1px; color: var(--ink-900); }
+.fc-box .fc-num em { font-style: normal; color: var(--brand-600); }
+.fc-box .fc-label { font-size: 11.5px; font-weight: 700; color: var(--ink-500); margin-top: 3px; }
+.fc-op { font-size: 16px; font-weight: 800; color: var(--ink-300); }
+
+.doc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.doc {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-md);
+  background: var(--ink-0);
+  overflow: hidden;
+}
+.doc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 14px 0;
+}
+.doc-cat {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: var(--brand-700);
+  background: var(--brand-50);
+  border: 1px solid color-mix(in srgb, var(--brand-500) 20%, transparent);
+  border-radius: var(--r-pill);
+  padding: 2px 8px;
+}
+.doc-actions { display: flex; gap: 2px; opacity: 0.6; transition: opacity 0.15s; }
+.doc:hover .doc-actions { opacity: 1; }
+.doc h4 { padding: 8px 14px 0; font-size: 13.5px; font-weight: 800; color: var(--ink-900); letter-spacing: -0.2px; line-height: 1.4; }
+.doc-body {
+  flex: 1;
+  margin: 9px 0 0;
+  padding: 0 14px 14px;
+  font-size: 12px;
+  line-height: 1.72;
+  color: var(--ink-700);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* ---------- misc ---------- */
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 70px 20px;
+  color: var(--ink-400);
+  font-size: 13px;
+}
+.spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--ink-100);
+  border-top-color: var(--brand-500);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.foot { margin-top: 26px; text-align: center; font-size: 11px; color: var(--ink-400); line-height: 1.7; }
+
+.skel { background: var(--ink-100); border-radius: 8px; animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1080px) {
+  .cal-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gauge:nth-child(3) { border-left: 0; }
+  .gauge:nth-child(n+3) { border-top: 1px solid var(--ink-100); }
+}
+@media (max-width: 900px) {
+  .cal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .doc-grid { grid-template-columns: minmax(0, 1fr); }
+  .detail-top { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .shell { padding: 14px 12px 60px; }
+  .topbar { padding: 13px 14px; gap: 12px; }
+  .brand-txt h1 { font-size: 16px; }
+  .top-right { width: 100%; justify-content: space-between; }
+  .goal-chip { flex: 1; }
+  .hero { padding: 18px; gap: 14px; }
+  .hero-title { font-size: 22px; }
+  .cal-grid { display: flex; overflow-x: auto; gap: 8px; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .cal-grid .month { flex: 0 0 86%; scroll-snap-align: start; }
+  .issue-groups { grid-template-columns: 1fr; }
+  .cal-grid .month:last-child { grid-column: auto; }
+  .gauges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gauge { padding: 9px 8px; }
+  .gauge-val { font-size: 16px; }
+  .card-head { padding: 14px; }
+  .card-body { padding: 14px; }
+  .toolbar { padding: 10px 14px; }
+  .scroll-hint { display: block; padding: 0 14px; margin-bottom: 8px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .dl { grid-template-columns: 1fr; }
+  .modal-backdrop { padding: 0; align-items: flex-end; }
+  .modal { max-width: none; max-height: 94vh; border-radius: var(--r-lg) var(--r-lg) 0 0; }
+  .modal-body { padding: 14px; }
+  .day { min-height: 42px; font-size: 12px; }
+  .formula-card { grid-template-columns: 1fr auto 1fr; }
+  .formula-card > *:nth-child(n+4) { display: none; }
+  .up-row .input { flex: 1 1 100%; }
+  .up-drop { flex: 1 1 100%; }
+  .file-row { flex-wrap: wrap; align-items: flex-start; }
+  .f-main { flex: 1 1 60%; }
+  .f-actions { margin-left: 0; width: 100%; justify-content: flex-end; }
+  .rv-frame { height: 66vh; }
+}
+
+/* static preview */
+.preview-note {
+  max-width: 1240px; margin: 4px auto 0; padding: 6px 20px 24px;
+  text-align: center; font-size: 12px; color: var(--ink-400); line-height: 1.6;
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="loading">Loading...</div>
+  <div id="error" hidden></div>
+  <div id="content" hidden></div>
+</div>
+<script>
+
+window.__SNAPSHOT = {"issues": [{"name": "특허", "category": "인증", "amount": 2000000, "sort_order": 10}, {"name": "연구소", "category": "인증", "amount": 2000000, "sort_order": 20}, {"name": "벤처", "category": "인증", "amount": 2000000, "sort_order": 30}, {"name": "이노비즈", "category": "인증", "amount": 2000000, "sort_order": 40}, {"name": "메인비즈", "category": "인증", "amount": 2000000, "sort_order": 50}, {"name": "여성기업", "category": "인증", "amount": 2000000, "sort_order": 60}, {"name": "대출", "category": "자금조달", "amount": 1000000, "sort_order": 70}, {"name": "대환", "category": "자금조달", "amount": 1000000, "sort_order": 80}, {"name": "이자", "category": "자금조달", "amount": 1000000, "sort_order": 90}, {"name": "무상지원금", "category": "자금조달", "amount": 1000000, "sort_order": 100}, {"name": "가지급금", "category": "세금이슈", "amount": 1000000, "sort_order": 110}, {"name": "가수금", "category": "세금이슈", "amount": 1000000, "sort_order": 120}, {"name": "미처분이익잉여금", "category": "세금이슈", "amount": 1000000, "sort_order": 130}, {"name": "가업승계", "category": "가업승계", "amount": 2000000, "sort_order": 140}, {"name": "정관", "category": "경영자문", "amount": 500000, "sort_order": 150}, {"name": "경영", "category": "경영자문", "amount": 500000, "sort_order": 160}, {"name": "창업", "category": "경영자문", "amount": 500000, "sort_order": 170}], "companies": [], "logs": [], "activities": [], "todos": [], "monthly": [{"id": 1, "month_key": "2026-11", "title": "자금", "done": false}, {"id": 2, "month_key": "2026-11", "title": "인증", "done": false}, {"id": 3, "month_key": "2026-11", "title": "수출바우처", "done": false}, {"id": 4, "month_key": "2026-11", "title": "도약패키지", "done": false}], "resources": [{"id": 1, "category": "전화 스크립트", "title": "첫 전화 · 미팅 약속 기본 스크립트", "body": "[오프닝 – 30초 규칙]\n“안녕하세요, 황윤철 팀장입니다. ○○ 대표님 계시죠? 바쁘신 시간에 죄송합니다. 딱 30초만 말씀드리고 끊겠습니다.”\n\n[명분 – 왜 지금 전화했는지]\n“최근 ○○업종 대표님들이 많이 문의하시는 [특허 / 운영자금 / 가지급금] 이슈로 연락드렸습니다. 같은 규모 업체 중에 아직 검토 전이신 곳이 많아서 대표님께 먼저 알려드리는 게 좋겠다 싶었습니다.”\n\n[미팅 약속 – 선택형 질문]\n“전화로 설명드리면 길어지니까, 15분만 시간 내주시면 좋겠습니다. 이번 주 목요일 오전 10시, 금요일 오후 2시 중에 어느 쪽이 편하세요?”\n· “가능하세요?”가 아니라 두 시간 중 하나를 고르게 한다.\n· 망설이면 “그럼 다음 주 화요일 오전으로 잡아두고, 일정 바뀌시면 문자 주세요.”\n\n[확정]\n“○○일 ○○시에 사무실로 찾아뵙겠습니다. 주소는 ○○로 ○○ 맞으시죠? 준비하실 서류는 없고, 대표님만 계시면 됩니다.”\n\n[끊기 전]\n“확인 문자 바로 드리겠습니다. 감사합니다.”", "sort_order": 10, "updated_at": "2026-11-27T02:23:56.826543+00:00"}, {"id": 2, "category": "이슈별 화법", "title": "인증 이슈 (특허·연구소·벤처·이노비즈·메인비즈·여성기업)", "body": "[한 줄 후킹]\n“대표님 업체는 특허·벤처·이노비즈 중에 아직 받지 못한 게 있으실 것 같아서요. 인증 하나로 3년간 세제 혜택과 정부사업 가점이 같이 따라옵니다.”\n\n[진단 질문]\n· “지금 보유하신 인증이 벤처기업 인증까지 맞으세요?”\n· “연구소는 설립하셨어요? 연구전담요원은 몇 분이세요?”\n· “올해 정부 지원사업 공고에 신청해 보신 적 있으세요?”\n\n[가치 제시]\n“인증은 한 번 받으면 3년 유지이고, 나라장터·정부지원사업 가점이 붙습니다. 견적은 200만원 선이고, 보통 2~3개월 걸립니다.”\n\n[클로징]\n“보유 인증만 확인하면 받을 수 있는 게 바로 나옵니다. 15분만 시간 주시면 서류 체크해 드릴게요.”", "sort_order": 20, "updated_at": "2026-11-27T02:23:56.931716+00:00"}, {"id": 3, "category": "이슈별 화법", "title": "자금조달 이슈 (대출·대환·이자·무상지원금)", "body": "[후킹]\n“요즘 은행권 대출 금리가 올라서 대환 문의가 많습니다. 지금 쓰시는 대출 금리가 연 6%를 넘으시면 바꾸는 것만으로 이자가 줄어듭니다.”\n\n[진단]\n· “현재 대출 잔액과 금리가 어떻게 되세요?”\n· “기보·신보 보증은 사용해 보셨어요?”\n· “정책자금(무상지원금)은 올해 신청하셨나요?”\n\n[가치]\n“대환은 금리 1~2%p 차이로도 연 수백만원이 달라집니다. 무상지원금은 상환 없이 받는 자금이라 가장 먼저 챙기셔야 합니다.”\n\n[클로징]\n“사업자등록번호만 주시면 조회해서 받을 수 있는 자금 리스트를 3일 안에 정리해 드립니다. 다음 주에 결과 들고 방문드릴게요.”", "sort_order": 30, "updated_at": "2026-11-27T02:23:57.010656+00:00"}, {"id": 4, "category": "이슈별 화법", "title": "세금이슈 화법 (가지급금·가수금·미처분이익잉여금)", "body": "[후킹]\n“대표님, 가지급금이나 가수금이 장부에 남아 있으면 세무조사 때 바로 지적됩니다. 미처분이익잉여금도 그대로 두면 법인세 부담이 커집니다.”\n\n[진단]\n· “가수금 잔액이 아직 남아 있으세요?”\n· “대표님 가지급금은 얼마 정도 되세요?”\n· “작년 결산 때 미처분이익잉여금 정리하셨나요?”\n\n[가치]\n“정리 시점과 방법에 따라 세금이 몇 배 차이 납니다. 200만원 예상으로, 3개월 안에 정리 가능합니다.”\n\n[클로징]\n“재무제표 한 장만 보여주시면 어디부터 손대야 하는지 바로 짚어드립니다.”", "sort_order": 40, "updated_at": "2026-11-27T02:23:57.079988+00:00"}, {"id": 5, "category": "이슈별 화법", "title": "가업승계 화법", "body": "[후킹]\n“대표님, 가업승계는 10년 전부터 준비하셔야 세금이 줄어듭니다. 지금 시작하시면 증여공제 10년을 두 번 쓸 수 있습니다.”\n\n[진단]\n· “자녀분 중에 회사를 이어받을 분이 있으세요?”\n· “지분은 현재 어떻게 나뉘어 있나요?”\n· “증여는 한 번도 안 하셨죠?”\n\n[가치]\n“가업승계는 200만원 예상으로, 5년 이상 장기 플랜으로 진행합니다. 늦게 시작하면 세금이 수억씩 달라질 수 있습니다.”\n\n[클로징]\n“가족관계와 지분 현황만 알려주시면 두 가지 시나리오로 비교해 드립니다.”", "sort_order": 50, "updated_at": "2026-11-27T02:23:57.170587+00:00"}, {"id": 6, "category": "이슈별 화법", "title": "경영자문 화법 (정관·경영·창업)", "body": "[후킹]\n“정관 한 장만 바꿔도 대표님 권한과 배당 구조가 달라집니다. 경영·창업 자문은 50만원 선에서 시작합니다.”\n\n[진단]\n· “정관은 설립 때 그대로 쓰고 계시죠?”\n· “주주 간 계약서는 따로 있으세요?”\n\n[가치]\n“정관 정비는 2주면 끝나고, 이후 의사결정이 훨씬 빨라집니다.”\n\n[클로징]\n“정관 사본 한 부만 보내주시면 문제되는 조항만 표시해서 보여드리겠습니다.”", "sort_order": 60, "updated_at": "2026-11-27T02:23:57.267128+00:00"}, {"id": 7, "category": "상담 스크립트", "title": "미팅 상담 스크립트 (5단계)", "body": "1. 라포 (2분)\n“오시는 길 불편하시진 않으셨어요? 사무실이 깔끔하시네요. 몇 년 되셨어요?”\n\n2. 현황 진단 (5분)\n“지금 매출 규모와 직원 수는 어떻게 되세요? 올해 목표는 어디까지 보셨어요?”\n· 대표가 말하게 하고, 메모하는 모습을 보여준다.\n\n3. 이슈 발견 (5분)\n“말씀 들으니 [인증/자금/세금] 쪽이 먼저 정리되어야 할 것 같습니다. 이 부분 지금 어떻게 처리하고 계세요?”\n\n4. 해결책 제시 (5분)\n“저희가 비슷한 업체 3곳을 진행했습니다. A사는 특허 2건으로 3개월, B사는 대환으로 이자 1,800만원을 줄였습니다.”\n· 금액은 예상치로만 말하고 확정 약속은 하지 않는다.\n\n5. 다음 약속 (3분)\n“오늘 말씀 정리해서 3일 안에 자료 보내드릴게요. 다음 주 화요일 오전에 다시 뵙고 진행 여부 정하실까요?”\n\n[마무리]\n“오늘 시간 내주셔서 감사합니다. 나가면서 명함 한 장 두고 가겠습니다.”", "sort_order": 70, "updated_at": "2026-11-27T02:23:57.340074+00:00"}, {"id": 8, "category": "후속 연락", "title": "후속 연락 스크립트 (D+1 / D+3 / D+7 / D+14)", "body": "[D+1 – 감사 문자]\n“대표님, 오늘 시간 내주셔서 감사합니다. 말씀하신 [특허 2건 / 대환] 건 정리해서 내일까지 보내드리겠습니다. – 황윤철”\n\n[D+3 – 자료 발송]\n“요청하신 자료 보내드립니다. 1페이지에 예상 비용과 기간만 정리했습니다. 궁금하신 점은 언제든 연락 주세요.”\n\n[D+7 – 전화]\n“자료 보신 것 같아서요. 어느 부분이 제일 걸리세요? 예산이면 분할도 가능합니다.”\n\n[D+14 – 마지막]\n“계속 연락드리는 게 실례일 것 같아 마지막으로 연락드립니다. 지금 아니어도 12월에 다시 여쭤봐도 될까요?”\n· ‘마지막 연락’이라고 말하면 오히려 회신률이 올라간다.", "sort_order": 80, "updated_at": "2026-11-27T02:23:57.42207+00:00"}, {"id": 9, "category": "반론 대응", "title": "반론 대응 모음", "body": "[“바빠요”]\n“바쁘신 거 압니다. 그래서 15분만 요청드렸습니다. 다음 주 중에 30분 통화로 대신할까요?”\n\n[“비싸요”]\n“네, 200만원이 작지 않습니다. 다만 인증 하나로 3년간 받는 세제 혜택과 가점을 계산하면 첫해에 회수됩니다. 분할 결제도 가능합니다.”\n\n[“이미 하고 있어요”]\n“어디까지 진행하셨어요? 저희는 인증은 받았는데 유지보수에서 놓치는 경우를 많이 봤습니다. 한 번만 점검해 드릴까요?”\n\n[“생각해보겠습니다”]\n“당연합니다. 그럼 제가 정리한 자료만 보고 판단하실 수 있게 3일 뒤에 한 번만 여쭤봐도 될까요?”", "sort_order": 90, "updated_at": "2026-11-27T02:23:57.501593+00:00"}, {"id": 10, "category": "클로징", "title": "계약 클로징 체크리스트", "body": "□ 예상 금액과 범위를 문서로 확인받았다\n□ 진행 기간(착수일·완료 예정일)을 합의했다\n□ 결제 조건(계약금/잔금 비율)을 정했다\n□ 필요 서류 목록을 전달했다\n□ 담당자 연락처를 교환했다\n□ 다음 액션 날짜를 캘린더에 등록했다\n□ 계약서 사본을 양측이 보관한다\n□ 첫 주 진행 상황을 문자로 안내한다", "sort_order": 100, "updated_at": "2026-11-27T02:23:57.585713+00:00"}, {"id": 11, "category": "참고", "title": "진행률 산식 안내", "body": "업체별 진행률 = (미팅 건수 ÷ 7) × 70% + (전화 건수 ÷ 7) × 30% (최대 100%)\n· 영업 성공 공식: 업체 1건당 미팅 7건\n· 상태가 계약완료이면 진행률 100%로 표시됩니다.\n· 미팅·전화는 업체 상세의 기록에서 추가하면 대시보드에 실시간 반영됩니다.", "sort_order": 110, "updated_at": "2026-11-27T02:23:57.931639+00:00"}], "files": [], "calendar": [], "summary": {"company_count": 0, "contract_count": 0, "contract_amount": 0, "ongoing_count": 0, "meetings": 0, "calls": 0, "calls_today": 0, "meetings_today": 0, "todos_open": 0, "log_count": 0}};
+(function () {
+  var S = window.__SNAPSHOT;
+  function rowsOf(name, p) {
+    p = p || {};
+    switch (name) {
+      case 'load_issue_types': return S.issues;
+      case 'load_companies': return S.companies;
+      case 'dashboard_summary': return [S.summary];
+      case 'load_resources': return S.resources;
+      case 'load_monthly_issues': return p.month_key ? S.monthly.filter(function (m) { return m.month_key === p.month_key; }) : S.monthly;
+      case 'load_calendar': return S.calendar;
+      case 'load_resource_files': return S.files;
+      case 'get_resource_file': return [];
+      case 'load_day': return S.calendar.filter(function (r) { return r.d === p.d; });
+      case 'load_company': return S.companies.filter(function (c) { return c.id === p.id; });
+      case 'load_company_logs': return S.logs.filter(function (l) { return l.company_id === p.company_id; });
+      case 'load_company_activities':
+        return S.activities.filter(function (a) { return a.company_id === p.company_id; });
+      default: return [];
+    }
+  }
+  var tries = 0;
+  var timer = setInterval(function () {
+    tries++;
+    var content = document.getElementById('content');
+    if (content && content.querySelector('#topbar')) {
+      clearInterval(timer);
+      var note = document.createElement('div');
+      note.className = 'preview-note';
+      note.textContent = '읽기 전용 미리보기입니다 — 실제 입력·저장은 AgentBase 대시보드에서 하세요. 이 화면은 배포 시점 데이터를 담고 있습니다.';
+      content.appendChild(note);
+    }
+    if (tries > 100) clearInterval(timer);
+  }, 150);
+
+  window.agentdb = {
+    executeQuery: function (name, params) {
+      if (/^(insert|update|delete|toggle|set_|upsert)/.test(name)) {
+        return Promise.reject(new Error('읽기 전용 미리보기입니다 — 입력·저장은 앱에서 하세요'));
+      }
+      var rows = rowsOf(name, params);
+      return Promise.resolve({ columns: [], rows: rows, row_count: rows.length });
+    },
+    confirm: function (m) { return Promise.resolve(window.confirm(m)); },
+    alert: function (m) { window.alert(m); return Promise.resolve(); },
+    prompt: function (m, o) { return Promise.resolve(window.prompt(m, (o && o.defaultValue) || '')); },
+    download: function () { return Promise.resolve(); }
+  };
+})();
+
+</script>
+<script>
+/* =========================================================
+   Shared state, helpers, shell, modal
+   ========================================================= */
+window.App = window.App || {};
+(function () {
+  'use strict';
+  var A = window.App;
+
+  A.C = {
+    DEADLINE: '2027-04-01',
+    GOAL_CONTRACTS: 3,
+    GOAL_AMOUNT: 3000000,
+    MEET_PER_COMPANY: 7,
+    START: '2026-11-01',
+    END: '2027-04-30',
+    REGIONS: ['서울', '경기', '인천', '부산', '대구', '광주', '대전', '울산', '세종',
+      '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'],
+    STATUSES: ['신규', '진행중', '계약완료', '보류'],
+    KINDS: ['미팅', '전화', '이슈체크', '기타'],
+    MONTHS: [
+      { key: '2026-11', label: '2026년 11월', short: '11월' },
+      { key: '2026-12', label: '2026년 12월', short: '12월' },
+      { key: '2027-01', label: '2027년 1월', short: '1월' },
+      { key: '2027-02', label: '2027년 2월', short: '2월' },
+      { key: '2027-03', label: '2027년 3월', short: '3월' },
+      { key: '2027-04', label: '2027년 4월', short: '4월' }
+    ],
+    CAT_ORDER: ['인증', '자금조달', '세금이슈', '가업승계', '경영자문'],
+    CAT_COLOR: {
+      '인증': 'cert', '자금조달': 'fund', '세금이슈': 'tax',
+      '가업승계': 'inherit', '경영자문': 'consult'
+    },
+    STATUS_CLASS: { '신규': 'st-new', '진행중': 'st-active', '계약완료': 'st-done', '보류': 'st-hold' }
+  };
+
+  A.state = {
+    tab: 'dashboard',
+    loaded: false,
+    issues: [],
+    issueMap: {},
+    companies: [],
+    summary: {},
+    resources: [],
+    resourceFiles: [],
+    monthly: [],
+    monthKey: '2026-11',
+    calendar: [],
+    evMap: {},
+    calGroup: 0,
+    filters: { q: '', region: '', status: '' }
+  };
+
+  /* ---------------- format ---------------- */
+  A.esc = function (v) {
+    if (v === null || v === undefined) return '';
+    if (window.gsDash && gsDash.esc) return gsDash.esc(String(v));
+    return String(v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  A.pad = function (n) { return String(n).padStart(2, '0'); };
+
+  A.todayISO = function () {
+    var d = new Date();
+    return d.getFullYear() + '-' + A.pad(d.getMonth() + 1) + '-' + A.pad(d.getDate());
+  };
+
+  A.iso = function (d) {
+    return d.getFullYear() + '-' + A.pad(d.getMonth() + 1) + '-' + A.pad(d.getDate());
+  };
+
+  A.parseISO = function (s) {
+    var p = String(s || '').split('-');
+    return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  };
+
+  A.fmtDate = function (s) {
+    if (!s) return '-';
+    return String(s).slice(0, 10).replace(/-/g, '.');
+  };
+
+  var DOW_KO = ['일', '월', '화', '수', '목', '금', '토'];
+  A.fmtDateKo = function (s) {
+    if (!s) return '-';
+    var d = A.parseISO(String(s).slice(0, 10));
+    return d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + DOW_KO[d.getDay()] + ')';
+  };
+
+  A.won = function (n) {
+    var v = Number(n) || 0;
+    if (v === 0) return '0원';
+    if (v % 10000 === 0) return (v / 10000).toLocaleString('ko-KR') + '만원';
+    return v.toLocaleString('ko-KR') + '원';
+  };
+
+  A.fmtSize = function (n) {
+    var v = Number(n) || 0;
+    if (v < 1024) return v + 'B';
+    if (v < 1024 * 1024) return Math.round(v / 1024) + 'KB';
+    return (v / 1024 / 1024).toFixed(1) + 'MB';
+  };
+
+  /* file helpers ------------------------------------------------ */
+  A.fileKind = function (mime, name) {
+    var ext = String(name || '').split('.').pop().toLowerCase();
+    var m = String(mime || '').toLowerCase();
+    if (m.indexOf('image/') === 0) return 'img';
+    if (m === 'application/pdf' || ext === 'pdf') return 'pdf';
+    if (/word|document|hwp|oword/.test(m) || ['doc', 'docx', 'hwp', 'hwpx', 'odt', 'rtf'].indexOf(ext) >= 0) return 'doc';
+    if (/sheet|excel|csv/.test(m) || ['xls', 'xlsx', 'csv', 'ods'].indexOf(ext) >= 0) return 'sheet';
+    if (/presentation|powerpoint/.test(m) || ['ppt', 'pptx', 'odp'].indexOf(ext) >= 0) return 'ppt';
+    if (m.indexOf('text/') === 0 || ['txt', 'md', 'json', 'xml'].indexOf(ext) >= 0) return 'text';
+    return 'etc';
+  };
+
+  A.fileKindLabel = {
+    img: 'IMAGE', pdf: 'PDF', doc: 'DOC', sheet: 'XLS', ppt: 'PPT', text: 'TXT', etc: 'FILE'
+  };
+
+  A.guessMime = function (name) {
+    var ext = String(name || '').split('.').pop().toLowerCase();
+    var map = {
+      pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg',
+      gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml',
+      txt: 'text/plain', csv: 'text/csv', md: 'text/markdown', json: 'application/json',
+      doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      ppt: 'application/vnd.ms-powerpoint', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      hwp: 'application/x-hwp', hwpx: 'application/x-hwpx', zip: 'application/zip'
+    };
+    return map[ext] || 'application/octet-stream';
+  };
+
+  A.dataUrlToBlob = function (dataUrl) {
+    var s = String(dataUrl || '');
+    var comma = s.indexOf(',');
+    if (comma < 0) throw new Error('파일 데이터가 올바르지 않습니다');
+    var meta = s.slice(0, comma);
+    var raw = s.slice(comma + 1);
+    var mime = (meta.match(/^data:([^;]+)/) || [])[1] || 'application/octet-stream';
+    var bin;
+    if (/;base64/i.test(meta)) bin = atob(raw);
+    else bin = decodeURIComponent(raw);
+    var arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  };
+
+  A.saveBlob = function (blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name || 'download';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+  };
+
+  A.pct = function (a, b) {
+    a = Number(a) || 0; b = Number(b) || 0;
+    if (b <= 0) return 0;
+    return Math.max(0, Math.min(100, Math.round((a / b) * 100)));
+  };
+
+  A.ddayInfo = function () {
+    var now = new Date();
+    var t0 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    var t1 = Date.UTC(2027, 3, 1);
+    var diff = Math.round((t1 - t0) / 86400000);
+    return {
+      diff: diff,
+      label: diff > 0 ? 'D-' + diff : (diff === 0 ? 'D-DAY' : 'D+' + Math.abs(diff))
+    };
+  };
+
+  /* ---------------- company helpers ---------------- */
+  A.issuesOf = function (c) {
+    return String((c && c.issues) || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  };
+
+  A.amountOf = function (c) {
+    return A.issuesOf(c).reduce(function (sum, n) {
+      var t = A.state.issueMap[n];
+      return sum + (t ? Number(t.amount) || 0 : 0);
+    }, 0);
+  };
+
+  A.progressOf = function (c) {
+    if (!c) return 0;
+    if (c.status === '계약완료') return 100;
+    var m = Math.min(1, (Number(c.meetings) || 0) / 7) * 0.7;
+    var p = Math.min(1, (Number(c.calls) || 0) / 7) * 0.3;
+    return Math.round((m + p) * 100);
+  };
+
+  A.statusBadge = function (status) {
+    var cls = A.C.STATUS_CLASS[status] || 'st-new';
+    return '<span class="badge ' + cls + '">' + A.esc(status || '신규') + '</span>';
+  };
+
+  A.issueChips = function (names, max) {
+    if (!names || !names.length) return '<span class="muted">-</span>';
+    var limit = max || 99;
+    var shown = names.slice(0, limit);
+    var html = shown.map(function (n) {
+      var t = A.state.issueMap[n];
+      var cls = t ? (A.C.CAT_COLOR[t.category] || 'etc') : 'etc';
+      return '<span class="chip ' + cls + '">' + A.esc(n) + '</span>';
+    }).join('');
+    if (names.length > shown.length) {
+      html += '<span class="chip more">+' + (names.length - shown.length) + '</span>';
+    }
+    return html;
+  };
+
+  A.options = function (list, selected) {
+    return list.map(function (v) {
+      return '<option value="' + A.esc(v) + '"' + (v === selected ? ' selected' : '') + '>' + A.esc(v) + '</option>';
+    }).join('');
+  };
+
+  /* ---------------- bridge ---------------- */
+  A.q = function (name, params) {
+    return window.agentdb.executeQuery(name, params || {});
+  };
+
+  A.toast = function (msg, tone) {
+    if (window.gsDash && gsDash.toast) {
+      try { gsDash.toast(msg, { tone: tone || 'success' }); return; } catch (e) { /* ignore */ }
+    }
+    console.log('[toast]', msg);
+  };
+
+  A.confirm = async function (msg) {
+    if (window.agentdb && agentdb.confirm) {
+      try { return await agentdb.confirm(msg, { danger: true }); } catch (e) { return false; }
+    }
+    return false;
+  };
+
+  /* ---------------- data ---------------- */
+  A.loadAll = async function () {
+    var results = await Promise.all([
+      A.q('load_issue_types'),
+      A.q('load_companies'),
+      A.q('dashboard_summary'),
+      A.q('load_resources'),
+      A.q('load_monthly_issues', { month_key: A.state.monthKey }),
+      A.q('load_calendar', { start: A.C.START, end: A.C.END }),
+      A.q('load_resource_files')
+    ]);
+    var issues = results[0].rows;
+    A.state.issues = issues;
+    A.state.issueMap = {};
+    issues.forEach(function (r) { A.state.issueMap[r.name] = r; });
+    A.state.companies = results[1].rows;
+    A.state.summary = results[2].rows[0] || {};
+    A.state.resources = results[3].rows;
+    A.state.monthly = results[4].rows;
+    A.state.calendar = results[5].rows;
+    A.state.resourceFiles = results[6].rows;
+
+    var map = {};
+    A.state.calendar.forEach(function (r) {
+      var k = String(r.d).slice(0, 10);
+      (map[k] = map[k] || []).push(r);
+    });
+    A.state.evMap = map;
+    A.state.loaded = true;
+  };
+
+  A.refresh = async function () {
+    try {
+      await A.loadAll();
+      A.render();
+    } catch (err) {
+      console.error('[data]', err);
+      var body = document.getElementById('tab-body');
+      if (body) {
+        body.innerHTML = '<div class="card"><div class="empty">'
+          + '<div class="em-title">데이터를 불러오지 못했습니다</div>'
+          + '<div class="em-sub">' + A.esc(err && err.message ? err.message : String(err)) + '</div>'
+          + '<button class="btn btn-primary" id="retry-load">다시 시도</button></div></div>';
+        var btn = document.getElementById('retry-load');
+        if (btn) btn.onclick = function () { A.refresh(); };
+      }
+    }
+  };
+
+  A.loadMonth = async function (key) {
+    A.state.monthKey = key;
+    try {
+      var r = await A.q('load_monthly_issues', { month_key: key });
+      A.state.monthly = r.rows;
+      A.render();
+    } catch (err) {
+      console.error('[data]', err);
+      A.toast('월별 이슈를 불러오지 못했습니다', 'danger');
+    }
+  };
+
+  /* ---------------- shell ---------------- */
+  A.renderHeader = function () {
+    var el = document.getElementById('topbar');
+    if (!el) return;
+    var d = A.ddayInfo();
+    var s = A.state.summary || {};
+    var contracts = Number(s.contract_count) || 0;
+    el.innerHTML =
+      '<div class="brand">'
+      + '<div class="brand-mark">영업</div>'
+      + '<div class="brand-txt">'
+      + '<h1>황윤철 팀장 영업 대시보드</h1>'
+      + '<p><span class="mentor">멘토 · 박윤식 팀장</span>'
+      + '<span class="dot-sep"></span>'
+      + '<span>2027.04.01 목표 · 계약 3건 / 300만원</span></p>'
+      + '</div></div>'
+      + '<div class="top-right">'
+      + '<div class="goal-chip"><span class="gc-label">4월 1일 목표</span><strong>300만원</strong></div>'
+      + '<div class="dday"><b id="dday-num">' + d.label + '</b><span>남은 일수</span></div>'
+      + '</div>';
+  };
+
+  A.renderTabs = function () {
+    var el = document.getElementById('tabbar');
+    if (!el) return;
+    var n = A.state.companies.length;
+    var items = [
+      { key: 'dashboard', label: '대시보드' },
+      { key: 'companies', label: '업체리스트', count: n },
+      { key: 'resources', label: '자료' }
+    ];
+    el.innerHTML = items.map(function (t) {
+      var active = A.state.tab === t.key ? ' active' : '';
+      var count = (t.count !== undefined && t.count > 0)
+        ? '<span class="tab-count">' + t.count + '</span>' : '';
+      return '<button class="tab-btn' + active + '" data-tab="' + t.key + '">' + t.label + count + '</button>';
+    }).join('');
+    el.onclick = function (e) {
+      var b = e.target.closest('[data-tab]');
+      if (b) A.setTab(b.getAttribute('data-tab'));
+    };
+  };
+
+  A.setTab = function (tab) {
+    A.state.tab = tab;
+    A.renderTabs();
+    A.renderBody();
+  };
+
+  A.render = function () {
+    A.renderHeader();
+    A.renderTabs();
+    A.renderBody();
+  };
+
+  A.renderBody = function () {
+    var body = document.getElementById('tab-body');
+    if (!body) return;
+    if (!A.state.loaded) {
+      body.innerHTML = '<div class="loading-box"><div class="spinner"></div><p>데이터를 불러오는 중…</p></div>';
+      return;
+    }
+    body.onclick = null;
+    body.onchange = null;
+    body.onsubmit = null;
+    body.oninput = null;
+    if (A.state.tab === 'companies') A.renderCompanies(body);
+    else if (A.state.tab === 'resources') A.renderResources(body);
+    else A.renderDashboard(body);
+  };
+
+  /* ---------------- modal ---------------- */
+  var backdrop = null;
+  var modalOnClose = null;
+
+  A.closeModal = function () {
+    if (backdrop) {
+      backdrop.remove();
+      backdrop = null;
+      document.body.classList.remove('modal-open');
+    }
+    var fn = modalOnClose;
+    modalOnClose = null;
+    if (fn) { try { fn(); } catch (e) { /* ignore */ } }
+  };
+
+  A.openModal = function (opts) {
+    A.closeModal();
+    modalOnClose = opts.onClose || null;
+    backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML =
+      '<div class="modal' + (opts.wide ? ' modal-wide' : '') + (opts.cls ? ' ' + opts.cls : '') + '" role="dialog" aria-modal="true">'
+      + '<div class="modal-head">'
+      + '<div><div class="modal-title">' + A.esc(opts.title || '') + '</div>'
+      + (opts.sub ? '<div class="modal-sub">' + A.esc(opts.sub) + '</div>' : '')
+      + '</div>'
+      + '<button class="icon-btn" data-close aria-label="닫기">✕</button>'
+      + '</div>'
+      + '<div class="modal-body">' + (opts.body || '') + '</div>'
+      + (opts.footer ? '<div class="modal-foot">' + opts.footer + '</div>' : '')
+      + '</div>';
+    document.body.appendChild(backdrop);
+    document.body.classList.add('modal-open');
+    backdrop.addEventListener('click', function (e) {
+      if (e.target === backdrop || e.target.closest('[data-close]')) A.closeModal();
+    });
+    return backdrop;
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') A.closeModal();
+  });
+
+  /* ---------------- resource file: view / edit ---------------- */
+  A.openResourceFile = async function (id) {
+    var objUrl = null;
+    var m = A.openModal({
+      title: '자료 열람',
+      sub: '불러오는 중…',
+      wide: true,
+      cls: 'modal-file',
+      body: '<div class="loading-box"><div class="spinner"></div><p>자료를 불러오는 중…</p></div>',
+      footer: '<button class="btn" data-close>닫기</button>',
+      onClose: function () { if (objUrl) URL.revokeObjectURL(objUrl); }
+    });
+    var file = null;
+    try {
+      var res = await A.q('get_resource_file', { id: id });
+      file = res.rows && res.rows[0];
+    } catch (err) {
+      console.error('[file]', err);
+    }
+    if (!m.isConnected) return;
+    if (!file) {
+      m.querySelector('.modal-body').innerHTML = '<div class="empty"><div class="em-title">자료를 열지 못했습니다</div>'
+        + '<div class="em-sub">잠시 후 다시 시도해 주세요</div></div>';
+      return;
+    }
+
+    var mime = file.mime_type || A.guessMime(file.file_name);
+    var ext = String(file.file_name || '').split('.').pop().toLowerCase();
+    var isImg = /^image\//.test(mime);
+    var isPdf = mime === 'application/pdf' || ext === 'pdf';
+    var isText = /^(text\/|application\/(json|xml))/.test(mime) || ['txt', 'csv', 'md'].indexOf(ext) >= 0;
+    var blob = null;
+    try { blob = A.dataUrlToBlob(file.data_url); } catch (e) { blob = null; }
+
+    var bodyHtml = '';
+    if (blob && isImg) {
+      objUrl = URL.createObjectURL(blob);
+      bodyHtml = '<div class="rv-wrap"><img class="rv-img" src="' + objUrl + '" alt="' + A.esc(file.title) + '"></div>';
+    } else if (blob && isPdf) {
+      objUrl = URL.createObjectURL(blob);
+      bodyHtml = '<div class="rv-wrap"><iframe class="rv-frame" src="' + objUrl + '" title="' + A.esc(file.title) + '"></iframe></div>';
+    } else if (blob && isText) {
+      var text = '';
+      try {
+        text = await new Promise(function (resolve) {
+          var fr = new FileReader();
+          fr.onload = function () { resolve(String(fr.result || '')); };
+          fr.onerror = function () { resolve(''); };
+          fr.readAsText(blob);
+        });
+      } catch (e) { text = ''; }
+      bodyHtml = '<pre class="rv-text">' + A.esc(text.slice(0, 200000)) + '</pre>';
+    } else {
+      var kind = A.fileKind(mime, file.file_name);
+      bodyHtml = '<div class="rv-noview">'
+        + '<div class="f-ico fx-' + kind + '">' + (A.fileKindLabel[kind] || 'FILE') + '</div>'
+        + '<p><b>' + A.esc(file.file_name) + '</b><br>이 형식은 브라우저에서 바로 미리보기를 지원하지 않습니다.<br>아래 다운로드 버튼으로 내려받아 확인하세요.</p>'
+        + '</div>';
+    }
+    if (file.note) {
+      bodyHtml = '<p class="rv-note">' + A.esc(file.note) + '</p>' + bodyHtml;
+    }
+
+    var box = m.querySelector('.modal');
+    box.querySelector('.modal-title').textContent = file.title || file.file_name;
+    box.querySelector('.modal-sub').textContent =
+      file.file_name + ' · ' + A.fmtSize(file.file_size) + ' · ' + (file.category || '자료') + ' · ' + A.fmtDate(file.created_at);
+    box.querySelector('.modal-body').innerHTML = bodyHtml;
+    var foot = box.querySelector('.modal-foot');
+    foot.innerHTML = '<button class="btn" data-close>닫기</button>'
+      + '<button class="btn btn-primary" id="rf-download">다운로드</button>';
+    foot.querySelector('#rf-download').onclick = function () {
+      try {
+        A.saveBlob(blob || A.dataUrlToBlob(file.data_url), file.file_name || 'download');
+        A.toast('다운로드를 시작했습니다');
+      } catch (e) {
+        A.toast('다운로드하지 못했습니다', 'danger');
+      }
+    };
+  };
+
+  A.openFileMeta = function (file) {
+    var body = '<form id="rf-form" class="form-grid" autocomplete="off">'
+      + '<div class="field full"><label>제목 <span class="req">*</span></label>'
+      + '<input class="input" name="title" maxlength="120" value="' + A.esc(file.title) + '"></div>'
+      + '<div class="field full"><label>분류</label>'
+      + '<input class="input" name="category" maxlength="40" value="' + A.esc(file.category || '') + '" placeholder="예) 제안서 · 공고문 · 사업계획서"></div>'
+      + '<div class="field full"><label>메모</label>'
+      + '<textarea class="textarea" name="note" rows="3" placeholder="이 자료에 대한 간단한 설명">' + A.esc(file.note || '') + '</textarea></div>'
+      + '<div class="field full"><div class="muted small">파일: ' + A.esc(file.file_name) + ' · ' + A.fmtSize(file.file_size)
+      + ' · ' + A.fmtDate(file.created_at) + '</div></div>'
+      + '</form>';
+    var m = A.openModal({
+      title: '자료 정보 수정',
+      sub: '제목 · 분류 · 메모 (파일은 다시 올리지 않아도 됩니다)',
+      body: body,
+      footer: '<button class="btn" data-close>취소</button><button class="btn btn-primary" id="rf-save">저장</button>',
+      wide: true
+    });
+    var btn = m.querySelector('#rf-save');
+    m.querySelector('#rf-form').onsubmit = function (e) { e.preventDefault(); btn.click(); };
+    btn.onclick = async function () {
+      var f = m.querySelector('#rf-form');
+      var title = f.querySelector('[name=title]').value.trim();
+      if (!title) { A.toast('제목을 입력하세요', 'warn'); return; }
+      btn.disabled = true;
+      try {
+        await A.q('update_resource_file', {
+          id: file.id,
+          title: title,
+          category: f.querySelector('[name=category]').value.trim() || '자료',
+          note: f.querySelector('[name=note]').value.trim() || null
+        });
+        A.closeModal();
+        A.toast('자료 정보를 수정했습니다');
+        await A.refresh();
+      } catch (err) {
+        console.error('[error]', err);
+        btn.disabled = false;
+        A.toast('저장하지 못했습니다', 'danger');
+      }
+    };
+  };
+
+  /* ---------------- boot ---------------- */
+  A.boot = function () {
+    var content = document.getElementById('content');
+    if (!content) return;
+    console.log('[init] boot dashboard');
+
+    /* Paperlogy must win over the kit's font stack regardless of injection order */
+    var st = document.createElement('style');
+    st.textContent = "html body, html body * { font-family: 'Paperlogy','Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif !important; }";
+    document.head.appendChild(st);
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('700 16px Paperlogy').then(function () {
+        console.log('[font] Paperlogy ready');
+      }).catch(function () {
+        console.warn('[font] Paperlogy failed, using fallback stack');
+      });
+    }
+
+    content.innerHTML =
+      '<div class="shell">'
+      + '<header class="topbar" id="topbar"></header>'
+      + '<nav class="tabbar" id="tabbar"></nav>'
+      + '<main id="tab-body" class="tab-body">'
+      + '<div class="loading-box"><div class="spinner"></div><p>데이터를 불러오는 중…</p></div>'
+      + '</main>'
+      + '<footer class="foot">황윤철 팀장 · 멘토 박윤식 팀장 &nbsp;|&nbsp; 2027년 4월 1일까지 계약 3건 · 300만원<br>업체 1건당 미팅 7건 / 매일 미팅 약속 전화 1건</footer>'
+      + '</div>';
+
+    A.renderHeader();
+    A.renderTabs();
+    A.refresh();
+
+    setInterval(function () {
+      var n = document.getElementById('dday-num');
+      if (n) n.textContent = A.ddayInfo().label;
+    }, 60000);
+  };
+})();
+
+</script>
+<script>
+/* =========================================================
+   ① 대시보드 — 목표 / 3개월 달력 / 오늘 할 일 / 월별 이슈 / 진행리스트
+   ========================================================= */
+(function () {
+  'use strict';
+  var A = window.App;
+  var DOW = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function gauge(label, valueHtml, pct, sub, tone) {
+    return '<div class="gauge">'
+      + '<div class="gauge-top"><span class="gauge-label">' + label + '</span>'
+      + '<span class="gauge-val">' + valueHtml + '</span></div>'
+      + '<div class="bar"><i class="' + (tone || '') + '" style="width:' + Math.max(0, Math.min(100, pct)) + '%"></i></div>'
+      + '<div class="gauge-sub">' + sub + '</div>'
+      + '</div>';
+  }
+
+  function monthHtml(m, todayISO, evMap) {
+    var y = Number(m.key.slice(0, 4));
+    var mo = Number(m.key.slice(5, 7));
+    var startDow = new Date(y, mo - 1, 1).getDay();
+    var daysInMonth = new Date(y, mo, 0).getDate();
+    var cells = '';
+    var total = 0;
+    var i;
+
+    for (i = 0; i < startDow; i++) cells += '<span class="day out"></span>';
+
+    for (var d = 1; d <= daysInMonth; d++) {
+      var iso = y + '-' + A.pad(mo) + '-' + A.pad(d);
+      var evs = evMap[iso] || [];
+      total += evs.length;
+      var dow = new Date(y, mo - 1, d).getDay();
+      var cls = 'day';
+      if (dow === 0) cls += ' sun';
+      if (dow === 6) cls += ' sat';
+      if (iso === todayISO) cls += ' today';
+
+      var seen = {};
+      var dots = '';
+      evs.forEach(function (e) {
+        var dc;
+        if (e.kind === 'activity') dc = e.sub === 'meeting' ? 'd-meet' : 'd-call';
+        else if (e.kind === 'todo') dc = 'd-todo';
+        else dc = 'd-log';
+        if (seen[dc]) return;
+        seen[dc] = 1;
+        dots += '<i class="' + dc + '"></i>';
+      });
+
+      cells += '<button class="' + cls + '" data-date="' + iso + '" title="' + iso + '">'
+        + '<span class="dnum">' + d + '</span>'
+        + '<span class="dots">' + dots + '</span>'
+        + '</button>';
+    }
+
+    return '<div class="month">'
+      + '<div class="month-title"><span>' + m.label + '</span>'
+      + '<span class="month-count' + (total ? '' : ' zero') + '">' + total + '건</span></div>'
+      + '<div class="dow">' + DOW.map(function (w, idx) {
+        return '<span class="' + (idx === 0 ? 'sun' : idx === 6 ? 'sat' : '') + '">' + w + '</span>';
+      }).join('') + '</div>'
+      + '<div class="days">' + cells + '</div>'
+      + '</div>';
+  }
+
+  A.renderDashboard = function (body) {
+    var s = A.state.summary || {};
+    var companies = A.state.companies || [];
+    var todayISO = A.todayISO();
+    var d = A.ddayInfo();
+
+    var contracts = Number(s.contract_count) || 0;
+    var amount = Number(s.contract_amount) || 0;
+    var meetings = Number(s.meetings) || 0;
+    var calls = Number(s.calls) || 0;
+    var callsToday = Number(s.calls_today) || 0;
+    var companyCount = Number(s.company_count) || 0;
+    var meetTarget = companyCount * A.C.MEET_PER_COMPANY;
+    var meetPct = A.pct(meetings, meetTarget);
+
+    var html = '';
+
+    /* ---- hero ---- */
+    html += '<section class="hero">'
+      + '<div>'
+      + '<div class="hero-eyebrow">FINAL GOAL · 2027.04.01</div>'
+      + '<h2 class="hero-title">4월 1일 목표 <em>300만원</em></h2>'
+      + '<p class="hero-sub">계약 3건 이상 · 총 계약금액 300만원 이상 달성</p>'
+      + '<div class="hero-pills">'
+      + '<span class="hero-pill">계약 <strong>' + contracts + ' / 3건</strong></span>'
+      + '<span class="hero-pill">계약금액 <strong>' + A.won(amount) + ' / ' + A.won(A.C.GOAL_AMOUNT) + '</strong></span>'
+      + '<span class="hero-pill">등록 업체 <strong>' + companyCount + '곳</strong></span>'
+      + '</div>'
+      + '</div>'
+      + '<div class="dday"><b>' + d.label + '</b><span>목표까지 ' + Math.max(0, d.diff) + '일</span></div>'
+      + '</section>';
+
+    /* ---- goal gauges ---- */
+    html += '<section class="card perf">'
+      + '<div class="perf-head">'
+      + '<div><div class="card-title">목표 대비 실적</div>'
+      + '<div class="card-sub">영업 성공 공식 — 업체 1건당 미팅 7건 / 매일 미팅 약속 전화 1건</div></div>'
+      + '<div class="formula"><span>업체 <b>1</b></span><span class="f-eq">×</span><span>미팅 <b>7</b></span><span class="f-eq">=</span><span>미팅 <b>7</b>건</span></div>'
+      + '</div>'
+      + '<div class="gauges">'
+      + gauge('계약 건수', contracts + '<span class="unit">/ 3건</span>', A.pct(contracts, 3),
+        '목표 3건 · 달성 ' + A.pct(contracts, 3) + '%', contracts >= 3 ? 'ok' : '')
+      + gauge('계약 금액', A.won(amount), A.pct(amount, A.C.GOAL_AMOUNT),
+        '목표 300만원 · 달성 ' + A.pct(amount, A.C.GOAL_AMOUNT) + '%', amount >= A.C.GOAL_AMOUNT ? 'ok' : '')
+      + gauge('누적 미팅', meetings + '<span class="unit">/ ' + meetTarget + '건</span>', meetPct,
+        '업체 ' + companyCount + '곳 × 7건 · ' + meetPct + '%', meetPct >= 100 ? 'ok' : '')
+      + gauge('오늘 전화', callsToday + '<span class="unit">/ 1건</span>', callsToday > 0 ? 100 : 0,
+        '누적 ' + calls + '건 · 1일 1건 권장', callsToday > 0 ? 'ok' : 'warn')
+      + '</div>'
+      + '</section>';
+
+    /* ---- calendar ---- */
+    var groups = [A.C.MONTHS.slice(0, 3), A.C.MONTHS.slice(3, 6)];
+    var shown = groups[A.state.calGroup] || groups[0];
+    html += '<section class="card">'
+      + '<div class="card-head">'
+      + '<div><div class="card-title">영업 캘린더</div>'
+      + '<div class="card-sub">날짜를 클릭하면 그날의 일정 · 미팅 · 전화를 기록할 수 있습니다</div></div>'
+      + '<div class="seg">'
+      + '<button class="seg-btn' + (A.state.calGroup === 0 ? ' active' : '') + '" data-cal-group="0">11월 – 1월</button>'
+      + '<button class="seg-btn' + (A.state.calGroup === 1 ? ' active' : '') + '" data-cal-group="1">2월 – 4월</button>'
+      + '</div></div>'
+      + '<div class="cal-legend">'
+      + '<span><i class="legend-dot d-meet"></i>미팅</span>'
+      + '<span><i class="legend-dot d-call"></i>전화</span>'
+      + '<span><i class="legend-dot d-todo"></i>할 일</span>'
+      + '<span><i class="legend-dot d-log"></i>진행기록</span>'
+      + '</div>'
+      + '<div class="cal-wrap"><div class="cal-grid">'
+      + shown.map(function (m) { return monthHtml(m, todayISO, A.state.evMap); }).join('')
+      + '</div></div>'
+      + '</section>';
+
+    /* ---- today + monthly ---- */
+    var todays = (A.state.evMap[todayISO] || []).filter(function (r) { return r.kind === 'todo'; });
+    var doneCount = todays.filter(function (t) { return t.is_done; }).length;
+
+    html += '<div class="split">';
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">오늘 할 일 <span class="count-pill">' + doneCount + '/' + todays.length + '</span></div>'
+      + '<div class="card-sub">' + A.fmtDateKo(todayISO) + ' · 미팅 / 전화 / 이슈체크</div>'
+      + '</div></div>'
+      + '<div class="card-body">'
+      + '<form class="inline-form" id="todo-form">'
+      + '<select class="select" name="kind">' + A.options(A.C.KINDS, '미팅') + '</select>'
+      + '<input class="input" name="title" placeholder="할 일을 입력하고 Enter" maxlength="200">'
+      + '<button class="btn btn-primary" type="submit">추가</button>'
+      + '</form>'
+      + '<ul class="todo-list">'
+      + (todays.length ? todays.map(function (t) {
+        return '<li class="todo' + (t.is_done ? ' done' : '') + '" data-todo-id="' + t.id + '">'
+          + '<input type="checkbox" data-todo-check' + (t.is_done ? ' checked' : '') + '>'
+          + '<span class="kdot ' + A.esc(t.sub) + '"></span>'
+          + '<span class="txt">' + A.esc(t.title) + '</span>'
+          + '<span class="ktag">' + A.esc(t.sub) + '</span>'
+          + '<button class="icon-btn tiny" data-todo-del="' + t.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">오늘 할 일이 없습니다. 위에서 추가해 보세요.</li>')
+      + '</ul>'
+      + '</div></section>';
+
+    var mk = A.state.monthKey;
+    var mkLabel = (A.C.MONTHS.filter(function (m) { return m.key === mk; })[0] || { label: mk }).label;
+    var mDone = A.state.monthly.filter(function (m) { return m.done; }).length;
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">월별 이슈 체크 <span class="count-pill">' + mDone + '/' + A.state.monthly.length + '</span></div>'
+      + '<div class="card-sub">' + mkLabel + ' · 챙겨야 할 이슈를 체크하고 (+)로 계속 추가</div>'
+      + '</div></div>'
+      + '<div class="card-body">'
+      + '<div class="mpills">' + A.C.MONTHS.map(function (m) {
+        return '<button class="mpill' + (m.key === mk ? ' active' : '') + '" data-mkey="' + m.key + '">' + m.short + '</button>';
+      }).join('') + '</div>'
+      + '<ul class="missues">'
+      + (A.state.monthly.length ? A.state.monthly.map(function (m) {
+        return '<li class="missue' + (m.done ? ' done' : '') + '" data-m-id="' + m.id + '">'
+          + '<button class="mi-check" data-m-check="' + m.id + '" aria-label="완료">✓</button>'
+          + '<span class="mtxt">' + A.esc(m.title) + '</span>'
+          + '<button class="icon-btn tiny" data-m-del="' + m.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">이 달의 이슈가 없습니다. 아래 (+)로 추가하세요.</li>')
+      + '</ul>'
+      + '<form class="add-row" id="month-form">'
+      + '<input class="input" name="title" placeholder="이슈 항목 추가 (예: 수출바우처)" maxlength="100">'
+      + '<button class="add-plus" type="submit" aria-label="추가">+</button>'
+      + '</form>'
+      + '</div></section>';
+
+    html += '</div>'; /* split */
+
+    /* ---- progress list ---- */
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">업체별 진행리스트 <span class="count-pill">' + companies.length + '</span></div>'
+      + '<div class="card-sub">업체리스트와 실시간 연동 · 미팅 / 전화 / 이슈 / 진행률</div>'
+      + '</div>'
+      + '<button class="btn btn-sm" data-goto-companies>업체 관리 →</button>'
+      + '</div>'
+      + '<div class="table-wrap"><table class="tbl tbl-prog">'
+      + '<thead><tr><th>업체명</th><th>상태</th><th>미팅</th><th>전화</th><th>이슈</th><th style="min-width:132px">진행률</th></tr></thead>'
+      + '<tbody>';
+
+    if (!companies.length) {
+      html += '<tr><td colspan="6"><div class="empty">'
+        + '<div class="em-icon">＋</div>'
+        + '<div class="em-title">아직 등록된 업체가 없습니다</div>'
+        + '<div class="em-sub">업체리스트 탭에서 첫 업체를 추가하면<br>미팅 · 전화 · 진행률이 이 표에 바로 반영됩니다.</div>'
+        + '<button class="btn btn-primary" data-goto-companies>첫 업체 추가하기</button>'
+        + '</div></td></tr>';
+    } else {
+      companies.forEach(function (c) {
+        var p = A.progressOf(c);
+        html += '<tr class="rowlink" data-open-company="' + c.id + '">'
+          + '<td><div class="co-name">' + A.esc(c.name) + '</div>'
+          + '<div class="co-sub">' + A.esc(c.ceo || '대표 미입력') + (c.region ? ' · ' + A.esc(c.region) : '') + '</div></td>'
+          + '<td>' + A.statusBadge(c.status) + '</td>'
+          + '<td class="num">' + (Number(c.meetings) || 0) + '<span class="muted"> / 7</span></td>'
+          + '<td class="num">' + (Number(c.calls) || 0) + '<span class="muted">건</span></td>'
+          + '<td><div class="chips">' + A.issueChips(A.issuesOf(c), 2) + '</div></td>'
+          + '<td><div class="prog-cell"><div class="bar sm"><i class="' + (p >= 100 ? 'ok' : '') + '" style="width:' + p + '%"></i></div><b>' + p + '%</b></div></td>'
+          + '</tr>';
+      });
+    }
+    html += '</tbody></table></div></section>';
+
+    body.innerHTML = html;
+    bindDashboard(body);
+  };
+
+  /* ---------------- dashboard events ---------------- */
+  function bindDashboard(body) {
+    body.onclick = async function (e) {
+      var calGroup = e.target.closest('[data-cal-group]');
+      if (calGroup) {
+        A.state.calGroup = Number(calGroup.getAttribute('data-cal-group'));
+        A.renderDashboard(body);
+        return;
+      }
+
+      var day = e.target.closest('[data-date]');
+      if (day) { A.openDay(day.getAttribute('data-date')); return; }
+
+      var goto = e.target.closest('[data-goto-companies]');
+      if (goto) { A.setTab('companies'); return; }
+
+      var openCo = e.target.closest('[data-open-company]');
+      if (openCo) { A.openCompanyDetail(Number(openCo.getAttribute('data-open-company'))); return; }
+
+      var mkey = e.target.closest('[data-mkey]');
+      if (mkey) { A.loadMonth(mkey.getAttribute('data-mkey')); return; }
+
+      var mcheck = e.target.closest('[data-m-check]');
+      if (mcheck) {
+        var id = Number(mcheck.getAttribute('data-m-check'));
+        var item = A.state.monthly.filter(function (x) { return x.id === id; })[0];
+        if (!item) return;
+        try {
+          await A.q('set_monthly_issue_done', { id: id, done: !item.done });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('저장하지 못했습니다', 'danger'); }
+        return;
+      }
+
+      var mdel = e.target.closest('[data-m-del]');
+      if (mdel) {
+        if (!(await A.confirm('이 이슈 항목을 삭제할까요?'))) return;
+        try {
+          await A.q('delete_monthly_issue', { id: Number(mdel.getAttribute('data-m-del')) });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        return;
+      }
+
+      var tdel = e.target.closest('[data-todo-del]');
+      if (tdel) {
+        try {
+          await A.q('delete_todo', { id: Number(tdel.getAttribute('data-todo-del')) });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+      }
+    };
+
+    body.onchange = async function (e) {
+      if (e.target.matches('[data-todo-check]')) {
+        var li = e.target.closest('[data-todo-id]');
+        try {
+          await A.q('set_todo_done', { id: Number(li.getAttribute('data-todo-id')), done: e.target.checked });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('저장하지 못했습니다', 'danger'); }
+      }
+    };
+
+    body.onsubmit = async function (e) {
+      var f = e.target;
+      if (f.id === 'todo-form') {
+        e.preventDefault();
+        var title = f.querySelector('[name=title]').value.trim();
+        if (!title) return;
+        var kind = f.querySelector('[name=kind]').value;
+        try {
+          await A.q('insert_todo', { todo_date: A.todayISO(), kind: kind, title: title });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('추가하지 못했습니다', 'danger'); }
+      }
+      if (f.id === 'month-form') {
+        e.preventDefault();
+        var t = f.querySelector('[name=title]').value.trim();
+        if (!t) return;
+        try {
+          await A.q('insert_monthly_issue', { month_key: A.state.monthKey, title: t });
+          await A.refresh();
+        } catch (err) { console.error('[error]', err); A.toast('추가하지 못했습니다', 'danger'); }
+      }
+    };
+  }
+
+  /* ---------------- day modal ---------------- */
+  function dayBody(rows, dateStr) {
+    var todos = rows.filter(function (r) { return r.kind === 'todo'; });
+    var acts = rows.filter(function (r) { return r.kind === 'activity'; });
+    var logs = rows.filter(function (r) { return r.kind === 'log'; });
+
+    var html = '';
+
+    html += '<div class="day-sec">'
+      + '<div class="mini-title">할 일 <span class="count-pill">' + todos.length + '</span></div>'
+      + '<form class="inline-form" id="day-todo-form">'
+      + '<select class="select" name="kind">' + A.options(A.C.KINDS, '미팅') + '</select>'
+      + '<input class="input" name="title" placeholder="할 일 입력" maxlength="200">'
+      + '<button class="btn btn-primary" type="submit">추가</button>'
+      + '</form>'
+      + '<ul class="todo-list">'
+      + (todos.length ? todos.map(function (t) {
+        return '<li class="todo' + (t.is_done ? ' done' : '') + '" data-todo-id="' + t.id + '">'
+          + '<input type="checkbox" data-todo-check' + (t.is_done ? ' checked' : '') + '>'
+          + '<span class="kdot ' + A.esc(t.sub) + '"></span>'
+          + '<span class="txt">' + A.esc(t.title) + '</span>'
+          + '<span class="ktag">' + A.esc(t.sub) + '</span>'
+          + '<button class="icon-btn tiny" data-todo-del="' + t.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">기록된 할 일이 없습니다.</li>')
+      + '</ul></div>';
+
+    var coOpts = '<option value="">업체 미지정</option>' + A.state.companies.map(function (c) {
+      return '<option value="' + c.id + '">' + A.esc(c.name) + '</option>';
+    }).join('');
+
+    html += '<div class="day-sec">'
+      + '<div class="mini-title">미팅 · 전화 기록 <span class="count-pill">' + acts.length + '</span></div>'
+      + '<form class="inline-form" id="day-act-form">'
+      + '<select class="select" name="act_type"><option value="meeting">미팅</option><option value="call">전화</option></select>'
+      + '<select class="select" name="company_id" style="min-width:140px">' + coOpts + '</select>'
+      + '<input class="input" name="content" placeholder="내용 (선택)" maxlength="200">'
+      + '<button class="btn btn-primary" type="submit">추가</button>'
+      + '</form>'
+      + '<ul class="mini-list">'
+      + (acts.length ? acts.map(function (a) {
+        return '<li class="mini-item">'
+          + '<span class="mi-type ' + (a.sub === 'meeting' ? 'meeting' : 'call') + '">' + (a.sub === 'meeting' ? '미팅' : '전화') + '</span>'
+          + '<span class="mi-txt">' + A.esc(a.title) + (a.detail ? ' — ' + A.esc(a.detail) : '') + '</span>'
+          + '<button class="icon-btn tiny" data-act-del="' + a.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">기록된 미팅 · 전화가 없습니다.</li>')
+      + '</ul></div>';
+
+    html += '<div class="day-sec">'
+      + '<div class="mini-title">업체 진행기록 <span class="count-pill">' + logs.length + '</span></div>'
+      + '<ul class="mini-list">'
+      + (logs.length ? logs.map(function (l) {
+        return '<li class="mini-item">'
+          + '<span class="mi-type call">기록</span>'
+          + '<span class="mi-txt"><b>' + A.esc(l.title) + '</b> — ' + A.esc(l.detail) + '</span>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">이 날짜에 쌓인 진행기록은 없습니다.</li>')
+      + '</ul></div>';
+
+    return html;
+  }
+
+  async function refreshDay(m, dateStr) {
+    if (!document.body.contains(m)) return;
+    var res = await A.q('load_day', { d: dateStr });
+    var bodyEl = m.querySelector('.modal-body');
+    if (!bodyEl) return;
+    bodyEl.innerHTML = dayBody(res.rows, dateStr);
+    bindDay(m, dateStr);
+  }
+
+  function bindDay(m, dateStr) {
+    m.onclick = async function (e) {
+      var tdel = e.target.closest('[data-todo-del]');
+      if (tdel) {
+        try {
+          await A.q('delete_todo', { id: Number(tdel.getAttribute('data-todo-del')) });
+          await A.loadAll(); A.render(); await refreshDay(m, dateStr);
+        } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        return;
+      }
+      var adel = e.target.closest('[data-act-del]');
+      if (adel) {
+        try {
+          await A.q('delete_activity', { id: Number(adel.getAttribute('data-act-del')) });
+          await A.loadAll(); A.render(); await refreshDay(m, dateStr);
+        } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+      }
+    };
+
+    m.onchange = async function (e) {
+      if (e.target.matches('[data-todo-check]')) {
+        var li = e.target.closest('[data-todo-id]');
+        try {
+          await A.q('set_todo_done', { id: Number(li.getAttribute('data-todo-id')), done: e.target.checked });
+          await A.loadAll(); A.render(); await refreshDay(m, dateStr);
+        } catch (err) { console.error('[error]', err); A.toast('저장하지 못했습니다', 'danger'); }
+      }
+    };
+
+    m.onsubmit = async function (e) {
+      e.preventDefault();
+      var f = e.target;
+      if (f.id === 'day-todo-form') {
+        var title = f.querySelector('[name=title]').value.trim();
+        if (!title) return;
+        try {
+          await A.q('insert_todo', {
+            todo_date: dateStr,
+            kind: f.querySelector('[name=kind]').value,
+            title: title
+          });
+          await A.loadAll(); A.render(); await refreshDay(m, dateStr);
+        } catch (err) { console.error('[error]', err); A.toast('추가하지 못했습니다', 'danger'); }
+      }
+      if (f.id === 'day-act-form') {
+        var cid = f.querySelector('[name=company_id]').value;
+        try {
+          await A.q('insert_activity', {
+            company_id: cid ? Number(cid) : null,
+            act_type: f.querySelector('[name=act_type]').value,
+            act_date: dateStr,
+            content: f.querySelector('[name=content]').value.trim() || null
+          });
+          await A.loadAll(); A.render(); await refreshDay(m, dateStr);
+        } catch (err) { console.error('[error]', err); A.toast('추가하지 못했습니다', 'danger'); }
+      }
+    };
+  }
+
+  A.openDay = async function (dateStr) {
+    console.log('[render] day', dateStr);
+    var res;
+    try {
+      res = await A.q('load_day', { d: dateStr });
+    } catch (err) {
+      console.error('[error]', err);
+      A.toast('해당 날짜를 불러오지 못했습니다', 'danger');
+      return;
+    }
+    var m = A.openModal({
+      title: A.fmtDateKo(dateStr),
+      sub: '일정 · 미팅 · 전화 · 진행기록',
+      body: dayBody(res.rows, dateStr),
+      wide: true
+    });
+    bindDay(m, dateStr);
+  };
+})();
+
+</script>
+<script>
+/* =========================================================
+   ② 업체리스트 — 관리기업 목록 / 진행사항 누적 / 미팅·전화 기록
+   ========================================================= */
+(function () {
+  'use strict';
+  var A = window.App;
+
+  A.filteredCompanies = function () {
+    var f = A.state.filters;
+    var q = String(f.q || '').trim().toLowerCase();
+    return A.state.companies.filter(function (c) {
+      if (f.region && c.region !== f.region) return false;
+      if (f.status && c.status !== f.status) return false;
+      if (q) {
+        var hay = [c.name, c.ceo, c.phone, c.address].join(' ').toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+  };
+
+  function rowHtml(c) {
+    var p = A.progressOf(c);
+    return '<tr class="rowlink" data-open-company="' + c.id + '">'
+      + '<td><div class="co-name">' + A.esc(c.name) + '</div>'
+      + '<div class="co-sub">' + A.esc(c.ceo || '대표 미입력') + '</div></td>'
+      + '<td>' + (c.region ? A.esc(c.region) : '<span class="muted">-</span>') + '</td>'
+      + '<td class="co-sub" style="font-size:12px">' + A.esc(c.phone || '-') + '</td>'
+      + '<td><div class="chips">' + A.issueChips(A.issuesOf(c), 3) + '</div></td>'
+      + '<td>' + A.statusBadge(c.status) + '</td>'
+      + '<td class="num" style="white-space:nowrap">' + (Number(c.meetings) || 0) + '<span class="muted"> / 7</span>'
+      + '<span class="muted" style="margin:0 4px">·</span>' + (Number(c.calls) || 0) + '<span class="muted">건</span></td>'
+      + '<td class="money' + ((Number(c.expected_amount) || 0) === 0 ? ' zero' : '') + '" style="white-space:nowrap">' + A.won(c.expected_amount) + '</td>'
+      + '<td><div class="prog-cell"><div class="bar sm"><i class="' + (p >= 100 ? 'ok' : '') + '" style="width:' + p + '%"></i></div><b>' + p + '%</b></div></td>'
+      + '<td style="white-space:nowrap;text-align:right">'
+      + '<button class="icon-btn tiny" data-edit-company="' + c.id + '" aria-label="수정">✎</button>'
+      + '<button class="icon-btn tiny" data-del-company="' + c.id + '" aria-label="삭제">✕</button>'
+      + '</td></tr>';
+  }
+
+  function renderRows() {
+    var tb = document.getElementById('company-tbody');
+    if (!tb) return;
+    var rows = A.filteredCompanies();
+    var countEl = document.getElementById('co-count');
+    if (countEl) countEl.textContent = rows.length;
+    var totalEl = document.getElementById('co-total');
+    if (totalEl) totalEl.textContent = A.state.companies.length;
+
+    if (!rows.length) {
+      tb.innerHTML = '<tr><td colspan="9"><div class="empty">'
+        + '<div class="em-icon">＋</div>'
+        + '<div class="em-title">' + (A.state.companies.length ? '조건에 맞는 업체가 없습니다' : '아직 등록된 업체가 없습니다') + '</div>'
+        + '<div class="em-sub">' + (A.state.companies.length
+          ? '검색어나 필터를 바꿔 보세요.'
+          : '업체를 추가하면 이슈별 예상 계약금액과 미팅 7건 목표 달성률이 자동으로 계산됩니다.') + '</div>'
+        + (A.state.companies.length ? '<button class="btn" id="co-clear">필터 초기화</button>'
+          : '<button class="btn btn-primary" data-add-company>+ 첫 업체 추가</button>')
+        + '</div></td></tr>';
+      return;
+    }
+    tb.innerHTML = rows.map(rowHtml).join('');
+  }
+
+  A.renderCompanies = function (body) {
+    var f = A.state.filters;
+    var regions = '<option value="">지역 전체</option>' + A.options(A.C.REGIONS, f.region);
+    var statuses = '<option value="">상태 전체</option>' + A.options(A.C.STATUSES, f.status);
+
+    body.innerHTML = '<section class="card">'
+      + '<div class="card-head">'
+      + '<div><div class="card-title">관리기업 리스트 <span class="count-pill" id="co-count">' + A.filteredCompanies().length + '</span></div>'
+      + '<div class="card-sub">전체 <b id="co-total">' + A.state.companies.length + '</b>곳 · 이슈를 다중 선택하면 예상 계약금액이 자동 합산됩니다</div></div>'
+      + '<button class="btn btn-primary" data-add-company>+ 업체 추가</button>'
+      + '</div>'
+      + '<div class="toolbar">'
+      + '<div class="search"><input class="input" id="co-search" placeholder="업체명 · 대표이사 · 연락처 검색" value="' + A.esc(f.q) + '"></div>'
+      + '<select class="select" id="co-region">' + regions + '</select>'
+      + '<select class="select" id="co-status">' + statuses + '</select>'
+      + '<button class="btn btn-ghost btn-sm" id="co-reset">초기화</button>'
+      + '</div>'
+      + '<div class="scroll-hint">← 표를 좌우로 넘기면 모든 항목이 보입니다</div>'
+      + '<div class="table-wrap"><table class="tbl tbl-co">'
+      + '<thead><tr><th>업체명</th><th>지역</th><th>연락처</th><th>이슈</th><th>상태</th><th>미팅 · 전화</th><th>예상금액</th><th style="min-width:120px">진행률</th><th></th></tr></thead>'
+      + '<tbody id="company-tbody"></tbody>'
+      + '</table></div>'
+      + '</section>';
+
+    renderRows();
+    bindList(body);
+  };
+
+  function bindList(body) {
+    body.onclick = function (e) {
+      if (e.target.closest('[data-add-company]')) { A.openCompanyForm(null); return; }
+      if (e.target.closest('#co-clear')) {
+        A.state.filters = { q: '', region: '', status: '' };
+        A.renderCompanies(body);
+        return;
+      }
+      if (e.target.closest('#co-reset')) {
+        A.state.filters = { q: '', region: '', status: '' };
+        A.renderCompanies(body);
+        return;
+      }
+      var edit = e.target.closest('[data-edit-company]');
+      if (edit) {
+        var id = Number(edit.getAttribute('data-edit-company'));
+        var c = A.state.companies.filter(function (x) { return x.id === id; })[0];
+        if (c) A.openCompanyForm(c);
+        return;
+      }
+      var del = e.target.closest('[data-del-company]');
+      if (del) {
+        var did = Number(del.getAttribute('data-del-company'));
+        var dc = A.state.companies.filter(function (x) { return x.id === did; })[0];
+        if (!dc) return;
+        A.confirm('"' + dc.name + '" 업체와 진행기록 · 미팅/전화 기록을 모두 삭제할까요?').then(async function (ok) {
+          if (!ok) return;
+          try {
+            await A.q('delete_company', { id: did });
+            A.toast('업체를 삭제했습니다');
+            await A.refresh();
+          } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        });
+        return;
+      }
+      var row = e.target.closest('[data-open-company]');
+      if (row) A.openCompanyDetail(Number(row.getAttribute('data-open-company')));
+    };
+
+    body.oninput = function (e) {
+      if (e.target.id === 'co-search') {
+        A.state.filters.q = e.target.value;
+        renderRows();
+      }
+    };
+
+    body.onchange = function (e) {
+      if (e.target.id === 'co-region') { A.state.filters.region = e.target.value; renderRows(); }
+      if (e.target.id === 'co-status') { A.state.filters.status = e.target.value; renderRows(); }
+    };
+  }
+
+  /* ---------------- add / edit form ---------------- */
+  A.openCompanyForm = function (company) {
+    var edit = !!company;
+    var selected = A.issuesOf(company || {});
+    var groups = {};
+    A.state.issues.forEach(function (it) {
+      (groups[it.category] = groups[it.category] || []).push(it);
+    });
+
+    var picker = A.C.CAT_ORDER.filter(function (cat) { return groups[cat]; }).map(function (cat) {
+      var items = groups[cat];
+      return '<div class="issue-group">'
+        + '<div class="ig-head"><span class="chip ' + A.C.CAT_COLOR[cat] + '">' + cat + '</span>'
+        + '<span class="ig-amt">건당 ' + A.won(items[0].amount) + '</span></div>'
+        + '<div class="ig-chips">' + items.map(function (it) {
+          return '<button type="button" class="pick' + (selected.indexOf(it.name) >= 0 ? ' on' : '') + '" data-pick="' + A.esc(it.name) + '">' + A.esc(it.name) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+
+    var body = '<form id="company-form" class="form-grid" autocomplete="off">'
+      + '<div class="field full"><label>업체명 <span class="req">*</span></label>'
+      + '<input class="input" name="name" placeholder="예) ○○정밀" maxlength="100" value="' + A.esc(company ? company.name : '') + '"></div>'
+      + '<div class="field"><label>지역</label><select class="select" name="region">'
+      + '<option value="">선택 안 함</option>' + A.options(A.C.REGIONS, company ? company.region : '') + '</select></div>'
+      + '<div class="field"><label>상태</label><select class="select" name="status">'
+      + A.options(A.C.STATUSES, company ? company.status : '신규') + '</select></div>'
+      + '<div class="field"><label>대표이사명</label><input class="input" name="ceo" maxlength="60" value="' + A.esc(company ? company.ceo : '') + '" placeholder="홍길동"></div>'
+      + '<div class="field"><label>연락처</label><input class="input" name="phone" maxlength="40" value="' + A.esc(company ? company.phone : '') + '" placeholder="010-0000-0000"></div>'
+      + '<div class="field full"><label>상세주소</label><input class="input" name="address" maxlength="200" value="' + A.esc(company ? company.address : '') + '" placeholder="예) 서울시 금천구 디지털로 123, 4층"></div>'
+      + '<div class="field full"><label>이슈 <span class="hint">다중 선택 → 예상 계약금액 자동 합산</span></label>'
+      + '<div class="issue-groups" id="issue-picker">' + picker + '</div>'
+      + '<div class="amount-box"><div><span class="ab-label">예상 계약금액</span>'
+      + '<span class="ab-count" id="pick-count">선택 0건</span></div>'
+      + '<strong id="pick-amount">0원</strong></div></div>'
+      + '<div class="field full"><label>메모</label><textarea class="textarea" name="memo" rows="3" maxlength="1000" placeholder="상담 시 참고할 내용">' + A.esc(company ? company.memo : '') + '</textarea></div>'
+      + '</form>';
+
+    var footer = '<button class="btn" data-close>취소</button>'
+      + '<button class="btn btn-primary" id="company-save">' + (edit ? '수정 저장' : '업체 추가') + '</button>';
+
+    var m = A.openModal({
+      title: edit ? '업체 수정' : '업체 추가',
+      sub: edit ? company.name : '기본 정보와 이슈를 입력하세요',
+      body: body,
+      footer: footer,
+      wide: true
+    });
+
+    function refreshAmount() {
+      var total = selected.reduce(function (s, n) {
+        var t = A.state.issueMap[n];
+        return s + (t ? Number(t.amount) || 0 : 0);
+      }, 0);
+      m.querySelector('#pick-amount').textContent = A.won(total);
+      m.querySelector('#pick-count').textContent = '선택 ' + selected.length + '건';
+    }
+    refreshAmount();
+
+    m.querySelector('#issue-picker').onclick = function (e) {
+      var btn = e.target.closest('[data-pick]');
+      if (!btn) return;
+      var name = btn.getAttribute('data-pick');
+      var idx = selected.indexOf(name);
+      if (idx >= 0) { selected.splice(idx, 1); btn.classList.remove('on'); }
+      else { selected.push(name); btn.classList.add('on'); }
+      refreshAmount();
+    };
+
+    var saveBtn = m.querySelector('#company-save');
+    m.querySelector('#company-form').onsubmit = function (e) {
+      e.preventDefault();
+      saveBtn.click();
+    };
+    saveBtn.onclick = async function () {
+      var form = m.querySelector('#company-form');
+      var payload = {
+        name: form.querySelector('[name=name]').value.trim(),
+        region: form.querySelector('[name=region]').value || null,
+        address: form.querySelector('[name=address]').value.trim() || null,
+        ceo: form.querySelector('[name=ceo]').value.trim() || null,
+        phone: form.querySelector('[name=phone]').value.trim() || null,
+        issues: selected.join(','),
+        status: form.querySelector('[name=status]').value,
+        memo: form.querySelector('[name=memo]').value.trim() || null
+      };
+      if (!payload.name) {
+        A.toast('업체명을 입력하세요', 'warn');
+        form.querySelector('[name=name]').focus();
+        return;
+      }
+      saveBtn.disabled = true;
+      try {
+        if (edit) {
+          payload.id = company.id;
+          await A.q('update_company', payload);
+        } else {
+          await A.q('insert_company', payload);
+        }
+        A.closeModal();
+        A.toast(edit ? '업체 정보를 수정했습니다' : '업체를 추가했습니다');
+        await A.refresh();
+      } catch (err) {
+        console.error('[error]', err);
+        saveBtn.disabled = false;
+        A.toast('저장하지 못했습니다: ' + (err && err.message ? err.message : ''), 'danger');
+      }
+    };
+
+    var nameInput = m.querySelector('[name=name]');
+    if (nameInput) nameInput.focus();
+  };
+
+  /* ---------------- detail ---------------- */
+  function detailBody(c, logs, acts) {
+    var issues = A.issuesOf(c);
+    var amount = A.amountOf(c);
+    var prog = A.progressOf(c);
+    var meetings = Number(c.meetings) || 0;
+    var calls = Number(c.calls) || 0;
+
+    var amountSub = issues.length
+      ? '이슈 ' + issues.length + '건 합산'
+      : '이슈를 선택하면 자동 계산됩니다';
+
+    var html = '';
+
+    html += '<div class="detail-top">'
+      + '<div class="dt-box amount"><div class="dt-label">예상 계약금액</div>'
+      + '<div class="dt-value">' + A.won(amount) + '</div>'
+      + '<div class="dt-sub">' + amountSub + '</div></div>'
+      + '<div class="dt-box"><div class="dt-prog-head"><span class="dt-label">진행률</span><strong>' + prog + '%</strong></div>'
+      + '<div class="bar"><i class="' + (prog >= 100 ? 'ok' : '') + '" style="width:' + prog + '%"></i></div>'
+      + '<div class="dt-sub">미팅 ' + meetings + ' / 7건 (' + A.pct(meetings, 7) + '%) · 전화 ' + calls + '건</div></div>'
+      + '</div>';
+
+    html += '<div class="chips" style="margin-bottom:4px">' + A.issueChips(issues) + '</div>';
+
+    html += '<dl class="dl">'
+      + '<div><dt>지역</dt><dd>' + A.esc(c.region || '-') + '</dd></div>'
+      + '<div><dt>대표이사</dt><dd>' + A.esc(c.ceo || '-') + '</dd></div>'
+      + '<div><dt>연락처</dt><dd>' + A.esc(c.phone || '-') + '</dd></div>'
+      + '<div><dt>등록일</dt><dd>' + A.fmtDate(c.created_at) + '</dd></div>'
+      + '<div style="grid-column:1/-1"><dt>주소</dt><dd>' + A.esc(c.address || '-') + '</dd></div>'
+      + (c.memo ? '<div style="grid-column:1/-1"><dt>메모</dt><dd>' + A.esc(c.memo) + '</dd></div>' : '')
+      + '</dl>';
+
+    html += '<div class="mini-title">미팅 · 전화 기록 <span class="count-pill">' + acts.length + '</span></div>'
+      + '<form class="inline-form" id="act-form">'
+      + '<select class="select" name="act_type"><option value="meeting">미팅</option><option value="call">전화</option></select>'
+      + '<input type="date" class="input" name="act_date" value="' + A.todayISO() + '">'
+      + '<input class="input" name="content" placeholder="내용 (예: 대표님 미팅, 특허 2건 논의)" maxlength="200">'
+      + '<button class="btn btn-primary" type="submit">추가</button>'
+      + '</form>'
+      + '<ul class="mini-list">'
+      + (acts.length ? acts.slice(0, 20).map(function (a) {
+        return '<li class="mini-item">'
+          + '<span class="mi-type ' + (a.act_type === 'meeting' ? 'meeting' : 'call') + '">' + (a.act_type === 'meeting' ? '미팅' : '전화') + '</span>'
+          + '<span class="mi-txt">' + A.esc(a.content || '(내용 없음)') + '</span>'
+          + '<span class="mi-date">' + A.fmtDate(a.act_date) + '</span>'
+          + '<button class="icon-btn tiny" data-act-del="' + a.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">아직 기록이 없습니다. 미팅·전화를 추가해 보세요.</li>')
+      + '</ul>';
+
+    html += '<div class="mini-title">진행사항 <span class="count-pill">' + logs.length + '</span>'
+      + '<span class="muted" style="font-weight:500">한 줄 기록 · (+)로 계속 누적</span></div>'
+      + '<form class="inline-form" id="log-form">'
+      + '<input type="date" class="input" name="log_date" value="' + A.todayISO() + '">'
+      + '<input class="input" name="content" placeholder="오늘 진행한 내용을 한 줄로 기록" maxlength="300">'
+      + '<button class="btn btn-primary" type="submit">+ 추가</button>'
+      + '</form>'
+      + '<ul class="timeline" id="log-timeline">'
+      + (logs.length ? logs.map(function (l) {
+        return '<li class="tl-item">'
+          + '<span class="tl-dot"></span>'
+          + '<div class="tl-body"><div class="tl-meta">' + A.fmtDate(l.log_date) + '</div>'
+          + '<div class="tl-text">' + A.esc(l.content) + '</div></div>'
+          + '<button class="icon-btn tiny" data-log-del="' + l.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">아직 진행사항이 없습니다. 첫 기록을 남겨 보세요.</li>')
+      + '</ul>';
+
+    return html;
+  }
+
+  function footerHtml() {
+    return '<button class="btn btn-danger" data-del-company>삭제</button>'
+      + '<div class="spacer"></div>'
+      + '<button class="btn" data-edit-company>수정</button>'
+      + '<button class="btn btn-primary" data-close>닫기</button>';
+  }
+
+  A.bindCompanyDetail = function (m, c) {
+    m.onclick = function (e) {
+      if (e.target.closest('[data-edit-company]')) {
+        A.closeModal();
+        A.openCompanyForm(c);
+        return;
+      }
+      if (e.target.closest('[data-del-company]')) {
+        A.confirm('"' + c.name + '" 업체와 모든 기록을 삭제할까요?').then(async function (ok) {
+          if (!ok) return;
+          try {
+            await A.q('delete_company', { id: c.id });
+            A.closeModal();
+            A.toast('업체를 삭제했습니다');
+            await A.refresh();
+          } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        });
+        return;
+      }
+      var ldel = e.target.closest('[data-log-del]');
+      if (ldel) {
+        A.q('delete_log', { id: Number(ldel.getAttribute('data-log-del')) }).then(async function () {
+          await A.loadAll(); A.render(); await refreshDetail(m, c.id);
+        }).catch(function (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); });
+        return;
+      }
+      var adel = e.target.closest('[data-act-del]');
+      if (adel) {
+        A.q('delete_activity', { id: Number(adel.getAttribute('data-act-del')) }).then(async function () {
+          await A.loadAll(); A.render(); await refreshDetail(m, c.id);
+        }).catch(function (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); });
+      }
+    };
+
+    m.onsubmit = async function (e) {
+      e.preventDefault();
+      var f = e.target;
+      if (f.id === 'act-form') {
+        var content = f.querySelector('[name=content]').value.trim();
+        try {
+          await A.q('insert_activity', {
+            company_id: c.id,
+            act_type: f.querySelector('[name=act_type]').value,
+            act_date: f.querySelector('[name=act_date]').value || A.todayISO(),
+            content: content || null
+          });
+          A.toast('기록을 추가했습니다');
+          await A.loadAll(); A.render(); await refreshDetail(m, c.id);
+        } catch (err) { console.error('[error]', err); A.toast('추가하지 못했습니다', 'danger'); }
+        return;
+      }
+      if (f.id === 'log-form') {
+        var text = f.querySelector('[name=content]').value.trim();
+        if (!text) { A.toast('진행 내용을 입력하세요', 'warn'); return; }
+        try {
+          await A.q('insert_log', {
+            company_id: c.id,
+            log_date: f.querySelector('[name=log_date]').value || A.todayISO(),
+            content: text
+          });
+          A.toast('진행사항을 기록했습니다');
+          await A.loadAll(); A.render(); await refreshDetail(m, c.id);
+        } catch (err) { console.error('[error]', err); A.toast('저장하지 못했습니다', 'danger'); }
+      }
+    };
+  };
+
+  async function refreshDetail(m, id) {
+    if (!document.body.contains(m)) return;
+    var res = await Promise.all([
+      A.q('load_company', { id: id }),
+      A.q('load_company_logs', { company_id: id }),
+      A.q('load_company_activities', { company_id: id })
+    ]);
+    var c = res[0].rows[0];
+    if (!c) { A.closeModal(); return; }
+    var bodyEl = m.querySelector('.modal-body');
+    bodyEl.innerHTML = detailBody(c, res[1].rows, res[2].rows);
+    var titleEl = m.querySelector('.modal-title');
+    if (titleEl) titleEl.textContent = c.name;
+    A.bindCompanyDetail(m, c);
+    var tl = m.querySelector('#log-timeline');
+    if (tl) tl.scrollTop = tl.scrollHeight;
+  }
+
+  A.openCompanyDetail = async function (id) {
+    console.log('[render] company', id);
+    var res;
+    try {
+      res = await Promise.all([
+        A.q('load_company', { id: id }),
+        A.q('load_company_logs', { company_id: id }),
+        A.q('load_company_activities', { company_id: id })
+      ]);
+    } catch (err) {
+      console.error('[error]', err);
+      A.toast('업체 정보를 불러오지 못했습니다', 'danger');
+      return;
+    }
+    var c = res[0].rows[0];
+    if (!c) { A.toast('업체를 찾을 수 없습니다', 'danger'); return; }
+
+    var m = A.openModal({
+      title: c.name,
+      sub: [c.region, c.ceo, c.phone].filter(Boolean).join(' · ') || '업체 상세',
+      body: detailBody(c, res[1].rows, res[2].rows),
+      footer: footerHtml(),
+      wide: true
+    });
+    A.bindCompanyDetail(m, c);
+    var tl = m.querySelector('#log-timeline');
+    if (tl) tl.scrollTop = tl.scrollHeight;
+  };
+})();
+
+</script>
+<script>
+/* =========================================================
+   ③ 자료 — 이슈별 예상금액 / 영업 성공 공식 / 롤플레이 스크립트
+   ========================================================= */
+(function () {
+  'use strict';
+  var A = window.App;
+
+  A.renderResources = function (body) {
+    var issues = A.state.issues || [];
+    var groups = {};
+    issues.forEach(function (it) {
+      (groups[it.category] = groups[it.category] || []).push(it);
+    });
+
+    var issueRows = A.C.CAT_ORDER.filter(function (cat) { return groups[cat]; }).map(function (cat) {
+      var items = groups[cat];
+      return '<tr class="cat-row">'
+        + '<td class="cat-cell"><span class="chip ' + A.C.CAT_COLOR[cat] + '">' + cat + '</span></td>'
+        + '<td><div class="items">' + items.map(function (it) {
+          return '<span class="chip etc" style="padding-left:7px">' + A.esc(it.name) + '</span>';
+        }).join('') + '</div></td>'
+        + '<td class="amt">' + A.won(items[0].amount) + '</td>'
+        + '</tr>';
+    }).join('');
+
+    var s = A.state.summary || {};
+    var meetings = Number(s.meetings) || 0;
+    var calls = Number(s.calls) || 0;
+    var companyCount = Number(s.company_count) || 0;
+
+    var html = '';
+
+    /* ---- 파일 업로드 / 온라인 열람 ---- */
+    var files = A.state.resourceFiles || [];
+    var cats = [];
+    (A.state.resources || []).forEach(function (r) {
+      if (r.category && cats.indexOf(r.category) < 0) cats.push(r.category);
+    });
+    files.forEach(function (f) {
+      if (f.category && cats.indexOf(f.category) < 0) cats.push(f.category);
+    });
+    var catOptions = cats.map(function (c) { return '<option value="' + A.esc(c) + '">'; }).join('');
+
+    var fileRows = files.length ? files.map(function (f) {
+      var kind = A.fileKind(f.mime_type, f.file_name);
+      return '<div class="file-row">'
+        + '<div class="f-ico fx-' + kind + '">' + (A.fileKindLabel[kind] || 'FILE') + '</div>'
+        + '<div class="f-main">'
+        + '<button class="f-title" data-view-file="' + f.id + '">' + A.esc(f.title || f.file_name) + '</button>'
+        + '<div class="f-meta">' + A.esc(f.file_name) + ' · ' + A.fmtSize(f.file_size) + ' · ' + A.esc(f.category || '자료')
+        + ' · ' + A.fmtDate(f.created_at) + '</div>'
+        + (f.note ? '<div class="f-note">' + A.esc(f.note) + '</div>' : '')
+        + '</div>'
+        + '<div class="f-actions">'
+        + '<button class="btn btn-sm" data-view-file="' + f.id + '">열기</button>'
+        + '<button class="icon-btn tiny" data-dl-file="' + f.id + '" aria-label="다운로드" title="다운로드">↓</button>'
+        + '<button class="icon-btn tiny" data-edit-file="' + f.id + '" aria-label="수정" title="수정">✎</button>'
+        + '<button class="icon-btn tiny" data-del-file="' + f.id + '" aria-label="삭제" title="삭제">✕</button>'
+        + '</div></div>';
+    }).join('') : '<div class="file-empty">아직 올린 자료가 없습니다. 위에서 첫 자료를 올려보세요.</div>';
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">자료 업로드 · 온라인 열람 <span class="count-pill">' + files.length + '</span></div>'
+      + '<div class="card-sub">PDF · 이미지 · 엑셀 · PPT · 한글 파일을 올려두면 어디서든 열어볼 수 있습니다 (파일당 4MB 이하)</div>'
+      + '</div></div>'
+      + '<div class="card-body">'
+      + '<div class="up-row">'
+      + '<input class="input" id="up-cat" list="rf-cats" maxlength="40" placeholder="분류 (예: 제안서 · 공고문)">'
+      + '<datalist id="rf-cats">' + catOptions + '</datalist>'
+      + '<label class="up-drop" id="up-drop">'
+      + '<input type="file" id="up-input" multiple accept=".pdf,.png,.jpg,.jpeg,.gif,.webp,.txt,.csv,.md,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.hwp,.hwpx">'
+      + '<span class="up-plus">＋</span>'
+      + '<span class="up-txt"><b>파일 선택</b> 또는 여기로 끌어다 놓기'
+      + '<span class="up-sub">PDF · 이미지 · 엑셀 · PPT · 한글 · 텍스트</span></span>'
+      + '</label></div>'
+      + '<div class="up-status" id="up-status" hidden></div>'
+      + '<div class="file-list">' + fileRows + '</div>'
+      + '</div></section>';
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">이슈별 계약 예상금액</div>'
+      + '<div class="card-sub">업체에 이슈를 여러 개 선택하면 건별 금액이 자동으로 합산됩니다</div>'
+      + '</div><span class="count-pill">' + issues.length + '종</span></div>'
+      + '<div class="table-wrap"><table class="tbl issue-tbl">'
+      + '<thead><tr><th>카테고리</th><th>이슈 항목</th><th class="r">건당 예상금액</th></tr></thead>'
+      + '<tbody>' + issueRows + '</tbody>'
+      + '</table></div>'
+      + '<div class="card-body" style="border-top:1px solid var(--ink-100);padding-top:12px">'
+      + '<p class="muted" style="line-height:1.7">예) 특허(200만) + 대환(100만) + 정관(50만)을 선택하면 예상 계약금액 <b>350만원</b>으로 합산됩니다. '
+      + '합산 금액은 업체리스트·진행리스트·목표 게이지에 그대로 반영됩니다.</p>'
+      + '</div></section>';
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">영업 성공 공식</div>'
+      + '<div class="card-sub">업체 1건당 미팅 7건 / 매일 미팅 약속 전화 1건</div>'
+      + '</div></div>'
+      + '<div class="formula-card">'
+      + '<div class="fc-box"><div class="fc-num">1</div><div class="fc-label">업체</div></div>'
+      + '<div class="fc-op">×</div>'
+      + '<div class="fc-box"><div class="fc-num"><em>7</em></div><div class="fc-label">미팅</div></div>'
+      + '<div class="fc-op">=</div>'
+      + '<div class="fc-box"><div class="fc-num">1</div><div class="fc-label">계약 기회</div></div>'
+      + '</div>'
+      + '<div class="card-body" style="padding-top:0">'
+      + '<div class="hero-pills">'
+      + '<span class="hero-pill">등록 업체 <strong>' + companyCount + '곳</strong></span>'
+      + '<span class="hero-pill">목표 미팅 <strong>' + (companyCount * 7) + '건</strong></span>'
+      + '<span class="hero-pill">누적 미팅 <strong>' + meetings + '건</strong></span>'
+      + '<span class="hero-pill">누적 전화 <strong>' + calls + '건</strong></span>'
+      + '</div>'
+      + '<p class="muted" style="margin-top:10px;line-height:1.7">전화는 매일 1건 이상 — 하루 한 통의 미팅 약속 전화가 7건의 미팅을 만들고, 7건의 미팅이 1건의 계약을 만듭니다.</p>'
+      + '</div></section>';
+
+    html += '<section class="card">'
+      + '<div class="card-head"><div>'
+      + '<div class="card-title">스크립트 · 자료 <span class="count-pill">' + A.state.resources.length + '</span></div>'
+      + '<div class="card-sub">첫 전화 · 미팅 상담 · 후속 연락 · 반론 대응 — 직접 수정하거나 새 자료를 추가하세요</div>'
+      + '</div><button class="btn btn-primary" data-add-doc>+ 자료 추가</button></div>'
+      + '<div class="card-body"><div class="doc-grid">'
+      + A.state.resources.map(function (r) {
+        return '<article class="doc">'
+          + '<div class="doc-head"><span class="doc-cat">' + A.esc(r.category || '자료') + '</span>'
+          + '<div class="doc-actions">'
+          + '<button class="icon-btn tiny" data-edit-doc="' + r.id + '" aria-label="수정">✎</button>'
+          + '<button class="icon-btn tiny" data-del-doc="' + r.id + '" aria-label="삭제">✕</button>'
+          + '</div></div>'
+          + '<h4>' + A.esc(r.title) + '</h4>'
+          + '<pre class="doc-body">' + A.esc(r.body) + '</pre>'
+          + '</article>';
+      }).join('')
+      + '</div></div></section>';
+
+    body.innerHTML = html;
+    bindResources(body);
+  };
+
+  var MAX_FILE = 4 * 1024 * 1024;
+
+  function readAsDataUrl(file, onProgress) {
+    return new Promise(function (resolve, reject) {
+      var fr = new FileReader();
+      fr.onprogress = function (ev) {
+        if (ev.lengthComputable && onProgress) onProgress(Math.round((ev.loaded / ev.total) * 100));
+      };
+      fr.onload = function () { resolve(fr.result); };
+      fr.onerror = function () { reject(fr.error || new Error('파일을 읽지 못했습니다')); };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  async function downloadFile(id) {
+    try {
+      var res = await A.q('get_resource_file', { id: id });
+      var f = res.rows && res.rows[0];
+      if (!f) { A.toast('자료를 찾을 수 없습니다', 'danger'); return; }
+      A.saveBlob(A.dataUrlToBlob(f.data_url), f.file_name || 'download');
+      A.toast('다운로드를 시작했습니다');
+    } catch (err) {
+      console.error('[download]', err);
+      A.toast('다운로드하지 못했습니다', 'danger');
+    }
+  }
+
+  async function uploadFiles(files) {
+    var catEl = document.getElementById('up-cat');
+    var cat = (catEl && catEl.value.trim()) || '자료';
+    var statusEl = document.getElementById('up-status');
+    if (statusEl) { statusEl.hidden = false; statusEl.innerHTML = ''; }
+    var ok = 0;
+    var skipped = 0;
+    for (var i = 0; i < files.length; i++) {
+      var f = files[i];
+      if (f.size > MAX_FILE) { skipped++; continue; }
+      var row = document.createElement('div');
+      row.className = 'up-item';
+      row.innerHTML = '<span class="up-name">' + A.esc(f.name) + '</span>'
+        + '<span class="up-pct">0%</span>'
+        + '<span class="up-bar"><i></i></span>';
+      if (statusEl) statusEl.appendChild(row);
+      try {
+        var dataUrl = await readAsDataUrl(f, function (p) {
+          var pc = row.querySelector('.up-pct');
+          var bar = row.querySelector('.up-bar i');
+          if (pc) pc.textContent = p + '%';
+          if (bar) bar.style.width = p + '%';
+        });
+        var pc2 = row.querySelector('.up-pct');
+        if (pc2) pc2.textContent = '저장 중…';
+        await A.q('insert_resource_file', {
+          title: (f.name.replace(/\.[^.]+$/, '') || f.name).slice(0, 120),
+          category: cat,
+          file_name: f.name,
+          mime_type: f.type || A.guessMime(f.name),
+          file_size: f.size,
+          data_url: dataUrl,
+          note: null
+        });
+        row.className = 'up-item done';
+        var pc3 = row.querySelector('.up-pct');
+        if (pc3) pc3.textContent = '완료';
+        ok++;
+      } catch (err) {
+        console.error('[upload]', err);
+        row.className = 'up-item fail';
+        var pc4 = row.querySelector('.up-pct');
+        if (pc4) pc4.textContent = '실패';
+        A.toast(f.name + ' — 올리지 못했습니다. 파일 크기를 줄이거나 잠시 후 다시 시도해 주세요', 'danger');
+      }
+    }
+    if (skipped) A.toast(skipped + '개 파일이 4MB를 넘어 건너뛰었습니다', 'warn');
+    if (ok) {
+      A.toast(ok + '개 자료를 올렸습니다');
+      await A.refresh();
+    } else if (!skipped) {
+      A.toast('자료를 올리지 못했습니다', 'danger');
+    }
+  }
+
+  function bindResources(body) {
+    body.onclick = function (e) {
+      if (e.target.closest('[data-add-doc]')) { A.openDocForm(null); return; }
+
+      var view = e.target.closest('[data-view-file]');
+      if (view) { A.openResourceFile(Number(view.getAttribute('data-view-file'))); return; }
+
+      var dl = e.target.closest('[data-dl-file]');
+      if (dl) { downloadFile(Number(dl.getAttribute('data-dl-file'))); return; }
+
+      var ed = e.target.closest('[data-edit-file]');
+      if (ed) {
+        var fid = Number(ed.getAttribute('data-edit-file'));
+        var ff = (A.state.resourceFiles || []).filter(function (x) { return x.id === fid; })[0];
+        if (ff) A.openFileMeta(ff);
+        return;
+      }
+
+      var df = e.target.closest('[data-del-file]');
+      if (df) {
+        var delId = Number(df.getAttribute('data-del-file'));
+        var target = (A.state.resourceFiles || []).filter(function (x) { return x.id === delId; })[0];
+        if (!target) return;
+        A.confirm('"' + (target.title || target.file_name) + '" 자료를 삭제할까요?').then(async function (ok) {
+          if (!ok) return;
+          try {
+            await A.q('delete_resource_file', { id: delId });
+            A.toast('자료를 삭제했습니다');
+            await A.refresh();
+          } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        });
+        return;
+      }
+
+      var edit = e.target.closest('[data-edit-doc]');
+      if (edit) {
+        var id = Number(edit.getAttribute('data-edit-doc'));
+        var r = A.state.resources.filter(function (x) { return x.id === id; })[0];
+        if (r) A.openDocForm(r);
+        return;
+      }
+      var del = e.target.closest('[data-del-doc]');
+      if (del) {
+        var did = Number(del.getAttribute('data-del-doc'));
+        var dr = A.state.resources.filter(function (x) { return x.id === did; })[0];
+        if (!dr) return;
+        A.confirm('"' + dr.title + '" 자료를 삭제할까요?').then(async function (ok) {
+          if (!ok) return;
+          try {
+            await A.q('delete_resource', { id: did });
+            A.toast('자료를 삭제했습니다');
+            await A.refresh();
+          } catch (err) { console.error('[error]', err); A.toast('삭제하지 못했습니다', 'danger'); }
+        });
+      }
+    };
+
+    body.onchange = function (e) {
+      if (e.target && e.target.id === 'up-input') {
+        var picked = Array.prototype.slice.call(e.target.files || []);
+        e.target.value = '';
+        if (picked.length) uploadFiles(picked);
+      }
+    };
+    body.oninput = null;
+
+    var drop = body.querySelector('#up-drop');
+    if (drop) {
+      drop.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        drop.classList.add('dragging');
+      });
+      drop.addEventListener('dragleave', function () {
+        drop.classList.remove('dragging');
+      });
+      drop.addEventListener('drop', function (e) {
+        e.preventDefault();
+        drop.classList.remove('dragging');
+        var dropped = Array.prototype.slice.call((e.dataTransfer && e.dataTransfer.files) || []);
+        if (dropped.length) uploadFiles(dropped);
+      });
+    }
+  }
+
+  A.openDocForm = function (resource) {
+    var edit = !!resource;
+    var cats = [];
+    A.state.resources.forEach(function (r) {
+      if (r.category && cats.indexOf(r.category) < 0) cats.push(r.category);
+    });
+
+    var body = '<form id="doc-form" class="form-grid" autocomplete="off">'
+      + '<div class="field full"><label>분류</label>'
+      + '<input class="input" name="category" list="doc-cats" maxlength="40" placeholder="예) 전화 스크립트" value="' + A.esc(resource ? resource.category : '') + '">'
+      + '<datalist id="doc-cats">' + cats.map(function (c) { return '<option value="' + A.esc(c) + '">'; }).join('') + '</datalist></div>'
+      + '<div class="field full"><label>제목 <span class="req">*</span></label>'
+      + '<input class="input" name="title" maxlength="120" placeholder="예) 첫 전화 · 미팅 약속 스크립트" value="' + A.esc(resource ? resource.title : '') + '"></div>'
+      + '<div class="field full"><label>내용</label>'
+      + '<textarea class="textarea" name="body" rows="18" placeholder="스크립트나 참고 내용을 자유롭게 작성하세요">' + A.esc(resource ? resource.body : '') + '</textarea></div>'
+      + '</form>';
+
+    var footer = '<button class="btn" data-close>취소</button>'
+      + '<button class="btn btn-primary" id="doc-save">' + (edit ? '수정 저장' : '자료 추가') + '</button>';
+
+    var m = A.openModal({
+      title: edit ? '자료 수정' : '자료 추가',
+      sub: '스크립트 · 화법 · 참고자료',
+      body: body,
+      footer: footer,
+      wide: true
+    });
+
+    var saveBtn = m.querySelector('#doc-save');
+    m.querySelector('#doc-form').onsubmit = function (e) {
+      e.preventDefault();
+      saveBtn.click();
+    };
+    saveBtn.onclick = async function () {
+      var f = m.querySelector('#doc-form');
+      var payload = {
+        category: f.querySelector('[name=category]').value.trim() || '자료',
+        title: f.querySelector('[name=title]').value.trim(),
+        body: f.querySelector('[name=body]').value
+      };
+      if (!payload.title) {
+        A.toast('제목을 입력하세요', 'warn');
+        f.querySelector('[name=title]').focus();
+        return;
+      }
+      saveBtn.disabled = true;
+      try {
+        if (edit) {
+          payload.id = resource.id;
+          await A.q('update_resource', payload);
+        } else {
+          await A.q('insert_resource', payload);
+        }
+        A.closeModal();
+        A.toast(edit ? '자료를 수정했습니다' : '자료를 추가했습니다');
+        await A.refresh();
+      } catch (err) {
+        console.error('[error]', err);
+        saveBtn.disabled = false;
+        A.toast('저장하지 못했습니다', 'danger');
+      }
+    };
+
+    var titleInput = m.querySelector('[name=title]');
+    if (titleInput) titleInput.focus();
+  };
+})();
+
+</script>
+<script>
+// Entry point: one section that mounts the whole shell. The runner unhides
+// #content after this returns; data loads inside App.boot().
+const SECTIONS = [
+  {
+    el: '#content',
+    render: function () {
+      window.App.boot();
+    }
+  }
+];
+
+</script>
+<script>
+// Section runner, seeded by AgentBase: it runs SECTIONS from sections/main.js.
+// Keep this file as it is and its <script> tag after main.js.
+(function () {
+  'use strict';
+  // A page with its own init() runs everything itself; a section the page
+  // passed to gsDash.loadSections is the kit's to run and refresh. A page
+  // whose SECTIONS start its init() (render: init, or a render that calls
+  // init() itself) leaves the starting to this runner instead: an init()
+  // that ran SECTIONS would call itself through them. A call inside a
+  // callback the render only sets up (a Retry button, a listener) does not
+  // count: it runs later, if ever.
+  function pageHasInit() {
+    return typeof init === 'function' && !sectionsStartInit();
+  }
+  function sectionsStartInit() {
+    return sections().some((section) => {
+      const render = section && section.render;
+      if (typeof render !== 'function') return false;
+      if (render === init) return true;
+      let source;
+      try {
+        source = Function.prototype.toString.call(render);
+      } catch (e) {
+        return false;
+      }
+      return startsInit(source);
+    });
+  }
+  // A bare init( call, not echarts.init( or reinit(, in the code a render
+  // runs itself. Never throws: a source too long to scan cheaply, or one the
+  // scan trips on, falls back to any init( in it.
+  const CALLS_INIT = /(^|[^.\w$])init\s*\(/;
+  const SCAN_MAX_CHARS = 8000;
+  function startsInit(source) {
+    if (source.length > SCAN_MAX_CHARS) return CALLS_INIT.test(source);
+    try {
+      return CALLS_INIT.test(ownCode(source));
+    } catch (e) {
+      return CALLS_INIT.test(source);
+    }
+  }
+  // The code a function runs itself: its body without comments, strings,
+  // and the functions it defines.
+  function ownCode(source) {
+    const commentOrString = new RegExp(
+      [
+        /\/\*[\s\S]*?\*\/|\/\/[^\n]*/.source,
+        /'(?:\\.|[^'\\\n])*'|"(?:\\.|[^"\\\n])*"/.source,
+        /`(?:\\.|[^`\\])*`/.source,
+      ].join('|'),
+      'g',
+    );
+    const src = source.replace(commentOrString, ' ');
+    const arrow = /^\s*(?:async\s*)?(?:\([^)]*\)|[\w$]+)\s*=>\s*/.exec(src);
+    const start = arrow
+      ? arrow[0].length + (src[arrow[0].length] === '{' ? 1 : 0)
+      : src.indexOf('{') + 1;
+    return start > 0 ? withoutNestedFunctions(src.slice(start)) : '';
+  }
+  function withoutNestedFunctions(code) {
+    // (?<![\w$]): a name starts at a word boundary, so a long identifier is
+    // not retried from every one of its characters.
+    const opener = /\bfunction\b[^{]*\{|=>|(?<![\w$])([\w$]+)\s*\([^()]*\)\s*\{/g;
+    let out = '';
+    let last = 0;
+    let match;
+    while ((match = opener.exec(code))) {
+      // if (...) {, for (...) { ... are blocks of this function.
+      if (match[1] && /^(?:if|for|while|switch|catch|with)$/.test(match[1])) continue;
+      out += code.slice(last, match.index);
+      let end;
+      if (match[0] === '=>') {
+        let i = match.index + 2;
+        while (/\s/.test(code[i] || '')) i += 1;
+        end = code[i] === '{' ? skipBalanced(code, i) : skipExpression(code, i);
+      } else {
+        end = skipBalanced(code, match.index + match[0].length - 1);
+      }
+      // Never step back: every opener is non-empty, so this always moves on.
+      last = Math.max(end, opener.lastIndex);
+      opener.lastIndex = last;
+    }
+    return out + code.slice(last);
+  }
+  function skipBalanced(code, i) {
+    let depth = 0;
+    for (; i < code.length; i += 1) {
+      if ('([{'.includes(code[i])) depth += 1;
+      else if (')]}'.includes(code[i]) && --depth === 0) return i + 1;
+    }
+    return code.length;
+  }
+  function skipExpression(code, i) {
+    let depth = 0;
+    for (; i < code.length; i += 1) {
+      const c = code[i];
+      if ('([{'.includes(c)) depth += 1;
+      else if (')]}'.includes(c)) {
+        if (depth === 0) return i;
+        depth -= 1;
+      } else if (depth === 0 && (c === ',' || c === ';' || c === '\n')) return i;
+    }
+    return code.length;
+  }
+  function kitOwns(section, el) {
+    const owns = window.gsDash?.loadSections?.owns;
+    return typeof owns === 'function' && owns(section, el) === true;
+  }
+
+  function sections() {
+    return typeof SECTIONS !== 'undefined' && Array.isArray(SECTIONS) ? SECTIONS : [];
+  }
+  function byId(id) {
+    return document.getElementById(id);
+  }
+
+  function showError(msg) {
+    const loading = byId('loading');
+    if (loading) loading.hidden = true;
+    const errEl = byId('error');
+    if (!errEl) return;
+    errEl.replaceChildren();
+    const text = document.createElement('div');
+    text.textContent = 'Error: ' + msg;
+    const btn = document.createElement('button');
+    btn.textContent = 'Retry';
+    btn.onclick = () => {
+      errEl.hidden = true;
+      if (loading) loading.hidden = false;
+      if (pageHasInit()) init();
+      else run();
+    };
+    errEl.append(text, btn);
+    errEl.hidden = false;
+  }
+
+  function showContent() {
+    const loading = byId('loading');
+    const errEl = byId('error');
+    const content = byId('content');
+    if (loading) loading.hidden = true;
+    if (errEl) errEl.hidden = true;
+    if (content) content.hidden = false;
+  }
+
+  // Before any stand-down: a page's own init() may call these.
+  if (typeof window.showError !== 'function') window.showError = showError;
+  if (typeof window.showContent !== 'function') window.showContent = showContent;
+  if (pageHasInit()) return;
+
+  // Render a section in place of what its previous render added, so a
+  // refresh never stacks a second copy (gsDash.section and appendChild
+  // append). Only that section's own output is swapped: the container's
+  // markup, its live controls and other sections sharing it stay put.
+  function renderSection(section, result, el) {
+    const old = (section.added || []).filter((node) => node.parentNode === el);
+    const next = old.length ? old[old.length - 1].nextSibling : null;
+    old.forEach((node) => node.remove());
+    const before = new Set(el.childNodes);
+    section.render(result, el);
+    section.added = Array.from(el.childNodes).filter((node) => !before.has(node));
+    if (next && next.parentNode === el) section.added.forEach((node) => el.insertBefore(node, next));
+  }
+
+  // Query -> render -> yield to the browser -> next. Rendering every
+  // section in a single pass freezes the view for the whole page, and
+  // making the fetches serial does not fix that: the giant render is.
+  async function run() {
+    if (pageHasInit()) return;
+    console.log('[init] starting');
+    try {
+      for (const section of sections()) {
+        const el = document.querySelector(section.el);
+        if (!el || kitOwns(section, el)) continue;
+        const result = section.queryName
+          ? await window.agentdb.executeQuery(section.queryName, section.params || {})
+          : null;
+        renderSection(section, result, el);
+        // Reveal THIS section's own container. Every container in the shell
+        // starts `hidden`, so a view that adds one per section would render
+        // into elements nobody ever unhides. showContent() drops the
+        // spinner as soon as the first section is up.
+        el.hidden = false;
+        showContent();
+        console.log('[render]', section.el, result ? result.row_count + ' rows' : 'no query');
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      // Also when SECTIONS is still empty, so a freshly seeded view does
+      // not sit on 'Loading...' forever.
+      showContent();
+      console.log('[init] done');
+    } catch (e) {
+      console.error('[error]', e.message);
+      window.showError(e.message);
+    }
+  }
+
+  // Kit blocks (editTable, form, cardList, kanban, importer) announce every
+  // saved add / edit / delete as gsdash:data-changed. Re-run the query
+  // sections (cards, charts, summaries) so they follow without a reload.
+  // Mount-only sections hold blocks that follow writes themselves; a section
+  // with unsaved edits catches up on the next write. One pass at a time: a
+  // write during a pass queues one more, so old totals never land last.
+  let refreshing = false;
+  let refreshAgain = false;
+  async function refreshSections() {
+    do {
+      refreshAgain = false;
+      const all = sections();
+      for (const section of all) {
+        const el = document.querySelector(section.el);
+        if (!el || !section.queryName || kitOwns(section, el)) continue;
+        if (window.gsDash.hasEdits?.(el)) continue;
+        // Another section mounted inside this one's output would go with it.
+        const holdsOther = all.some((other) => {
+          const o = other !== section && document.querySelector(other.el);
+          return o && (section.added || []).some((node) => node.contains(o));
+        });
+        if (holdsOther) continue;
+        try {
+          const result = await window.agentdb.executeQuery(section.queryName, section.params || {});
+          // The user started editing in it while the query ran: keep that.
+          if (window.gsDash.hasEdits?.(el)) continue;
+          renderSection(section, result, el);
+          console.log('[render] refreshed', section.el);
+        } catch (e) {
+          console.error('[error]', e.message);
+        }
+      }
+    } while (refreshAgain);
+    refreshing = false;
+  }
+  window.gsDash?.onDataChanged?.(() => {
+    if (pageHasInit()) return;
+    if (refreshing) { refreshAgain = true; return; }
+    refreshing = true;
+    setTimeout(refreshSections, 0);
+  });
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+
+</script>
+</body>
+</html>
