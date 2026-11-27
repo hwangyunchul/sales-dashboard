@@ -645,6 +645,9 @@ a { color: inherit; }
 
 /* ---------- tables ---------- */
 .table-wrap { width: 100%; overflow-x: auto; }
+.table-wrap:has(> table > tbody > tr > td[colspan]) { overflow-x: visible; }
+.table-wrap:has(> table > tbody > tr > td[colspan]) > table { min-width: 0; width: 100%; }
+.table-wrap:has(> table > tbody > tr > td[colspan]) > table > thead { display: none; }
 .scroll-hint { display: none; font-size: 12px; color: var(--ink-500); margin: 0 0 6px 2px; }
 
 /* ---------- resource upload / viewer ---------- */
