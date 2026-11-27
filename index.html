@@ -1443,7 +1443,10 @@ window.__SEED = {"issues": [{"name": "특허", "category": "인증", "amount": 2
       case 'load_company_logs':
         return all('logs').then(function (rows) {
           return rows.filter(function (r) { return Number(r.company_id) === Number(p.company_id); })
-            .sort(function (a, b) { return String(b.log_date).localeCompare(String(a.log_date)); });
+            .sort(function (a, b) {
+              var d = String(a.log_date).localeCompare(String(b.log_date));
+              return d !== 0 ? d : (Number(a.id) - Number(b.id));
+            });
         });
 
       case 'load_company_activities':
