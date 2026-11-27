@@ -898,6 +898,12 @@ a { color: inherit; }
 }
 .modal.modal-wide { max-width: 860px; }
 .modal.modal-file { max-width: 1040px; }
+.modal.modal-today { max-width: 560px; }
+.pop-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+.pop-date { font-size: 13px; color: var(--ink-500); font-weight: 600; }
+.pop-count { font-size: 12px; color: var(--ink-500); }
+.pop-count b { color: var(--brand-600); font-size: 15px; }
+.pop-list { margin-top: 10px; max-height: 46vh; overflow-y: auto; }
 .modal-head {
   display: flex;
   align-items: flex-start;
@@ -2247,7 +2253,13 @@ window.App = window.App || {};
 
     A.renderHeader();
     A.renderTabs();
-    A.refresh();
+    A.refresh().then(function () {
+      if (A._todayPopupShown) return;
+      A._todayPopupShown = true;
+      setTimeout(function () {
+        if (A.openTodayPopup) A.openTodayPopup({ auto: true });
+      }, 350);
+    });
 
     setInterval(function () {
       var n = document.getElementById('dday-num');
@@ -2407,7 +2419,9 @@ window.App = window.App || {};
       + '<div class="card-head"><div>'
       + '<div class="card-title">오늘 할 일 <span class="count-pill">' + doneCount + '/' + todays.length + '</span></div>'
       + '<div class="card-sub">' + A.fmtDateKo(todayISO) + ' · 미팅 / 전화 / 이슈체크</div>'
-      + '</div></div>'
+      + '</div>'
+      + '<button class="btn btn-sm" id="pop-open">팝업으로 보기</button>'
+      + '</div>'
       + '<div class="card-body">'
       + '<form class="inline-form" id="todo-form">'
       + '<select class="select" name="kind">' + A.options(A.C.KINDS, '미팅') + '</select>'
@@ -2506,6 +2520,8 @@ window.App = window.App || {};
         return;
       }
 
+      if (e.target.closest('#pop-open')) { A.openTodayPopup(); return; }
+
       var day = e.target.closest('[data-date]');
       if (day) { A.openDay(day.getAttribute('data-date')); return; }
 
@@ -2582,6 +2598,99 @@ window.App = window.App || {};
       }
     };
   }
+
+  /* ---------------- today popup ---------------- */
+  A.openTodayPopup = function (opts) {
+    opts = opts || {};
+    var today = A.todayISO();
+    var todos = (A.state.evMap[today] || []).filter(function (r) { return r.kind === 'todo'; });
+
+    var done = todos.filter(function (t) { return t.is_done; }).length;
+
+    var body = '<div class="pop-head">'
+      + '<div class="pop-date">' + A.fmtDateKo(today) + '</div>'
+      + '<div class="pop-count"><b>' + done + '</b> / ' + todos.length + ' 완료</div>'
+      + '</div>'
+      + '<form class="inline-form" id="pop-todo-form">'
+      + '<select class="select" name="kind">' + A.options(A.C.KINDS, '미팅') + '</select>'
+      + '<input class="input" name="title" placeholder="할 일 추가 후 Enter" maxlength="200">'
+      + '<button class="btn btn-primary" type="submit">추가</button>'
+      + '</form>'
+      + '<ul class="todo-list pop-list">'
+      + (todos.length ? todos.map(function (t) {
+        return '<li class="todo' + (t.is_done ? ' done' : '') + '" data-todo-id="' + t.id + '">'
+          + '<input type="checkbox" data-todo-check' + (t.is_done ? ' checked' : '') + '>'
+          + '<span class="kdot ' + A.esc(t.sub) + '"></span>'
+          + '<span class="txt">' + A.esc(t.title) + '</span>'
+          + '<span class="ktag">' + A.esc(t.sub) + '</span>'
+          + '<button class="icon-btn tiny" data-todo-del="' + t.id + '" aria-label="삭제">✕</button>'
+          + '</li>';
+      }).join('') : '<li class="day-empty">오늘 등록된 할 일이 없습니다. 위에서 추가해 보세요.</li>')
+      + '</ul>';
+
+    var m = A.openModal({
+      title: '오늘 할 일',
+      sub: '체크하면 바로 저장됩니다',
+      body: body,
+      cls: 'modal-today',
+      footer: '<button class="btn" data-close>닫기</button>'
+        + '<button class="btn btn-primary" id="pop-go-day">오늘 전체 보기</button>'
+    });
+
+    var form = m.querySelector('#pop-todo-form');
+    if (form) {
+      form.onsubmit = async function (e) {
+        e.preventDefault();
+        var title = form.querySelector('[name=title]').value.trim();
+        if (!title) return;
+        var kind = form.querySelector('[name=kind]').value;
+        try {
+          await A.q('insert_todo', { todo_date: today, kind: kind, title: title });
+          await A.refresh();
+          A.openTodayPopup();
+        } catch (err) {
+          console.error('[error]', err);
+          A.toast('추가하지 못했습니다', 'danger');
+        }
+      };
+    }
+
+    m.onclick = async function (e) {
+      if (e.target.closest('#pop-go-day')) { A.closeModal(); A.openDay(today); return; }
+      var cb = e.target.closest('[data-todo-check]');
+      if (cb) {
+        var li = cb.closest('[data-todo-id]');
+        var id = Number(li.getAttribute('data-todo-id'));
+        cb.disabled = true;
+        try {
+          await A.q('set_todo_done', { id: id, done: cb.checked });
+          await A.refresh();
+          A.openTodayPopup();
+        } catch (err) {
+          console.error('[error]', err);
+          cb.disabled = false;
+          A.toast('저장하지 못했습니다', 'danger');
+        }
+        return;
+      }
+      var del = e.target.closest('[data-todo-del]');
+      if (del) {
+        var did = Number(del.getAttribute('data-todo-del'));
+        try {
+          await A.q('delete_todo', { id: did });
+          await A.refresh();
+          A.openTodayPopup();
+          A.toast('할 일을 삭제했습니다');
+        } catch (err) {
+          console.error('[error]', err);
+          A.toast('삭제하지 못했습니다', 'danger');
+        }
+      }
+    };
+
+    var input = m.querySelector('#pop-todo-form [name=title]');
+    if (input && !opts.auto) input.focus();
+  };
 
   /* ---------------- day modal ---------------- */
   function dayBody(rows, dateStr) {
